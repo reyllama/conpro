@@ -80,8 +80,8 @@ save_every = config['training']['save_every']
 backup_every = config['training']['backup_every']
 sample_nlabels = config['training']['sample_nlabels']
 
-######### prompt #########
-exp_setting = "MIXING" # For free form code level changes that are not contained in config.yaml
+###### misc.details ######
+exp_setting = config['training']['misc'] # For free form code level changes that are not contained in config.yaml
 ##########################
 
 # Compose experiment output directory

@@ -32,8 +32,9 @@ z_dist:
   type: gauss
   dim: 256
 training:
+  misc: RandInit
   use_pretrain: true
-  out_dir: /xmgen/conpro_experiments/experiments/cl/100/cam
+  out_dir: ../conpro_experiments/experiments/cl/100/cam
   gan_type: standard
   reg_type: real
   reg_param: 10.

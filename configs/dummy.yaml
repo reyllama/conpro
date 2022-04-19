@@ -46,7 +46,7 @@ training:
   sample_every: 3
   sample_nlabels: 30
   inception_every: -1
-  save_every: 5
+  save_every: 500
   backup_every: 100000
   restart_every: -1
   mdl_every: 4
