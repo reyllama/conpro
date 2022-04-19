@@ -38,7 +38,7 @@ class ConvLayer(nn.Module):
         memory_format = torch.channels_last if channels_last else torch.contiguous_format
         self.weight = nn.Parameter(2*torch.rand([out_channels, in_channels, kernel_size, kernel_size])-1).to(memory_format=memory_format) # normal -> uniform(-1,1)
         self.bias = nn.Parameter(torch.zeros([out_channels]))
-        if pointwise:
+        if pointwise: # All 1x1 conv layers are learnable, so fix weight to 1 and update mask
             self.weight = nn.Parameter(torch.ones([out_channels, in_channels, kernel_size, kernel_size])).to(memory_format=memory_format)
         self.weight_gain = 1 / math.sqrt(in_channels * (kernel_size ** 2)) # normalize (equivalent to initialization) <- redundant if init. with pretrained weights
 
