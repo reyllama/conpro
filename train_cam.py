@@ -258,7 +258,7 @@ for task_id in task_range:
                       device=device)
 
     # Save for tests
-    ntest = batch_size
+    ntest = 16
     x_real, ytest = utils.get_nsamples(train_loader, ntest)
     ytest.clamp_(None, nlabels - 1)
     ztest = zdist.sample((ntest,))
@@ -274,7 +274,7 @@ for task_id in task_range:
     # logger.add_imgs(x, '%04d' % y_inst, -1)
 
     # From second task
-    if task_id > 1:
+    # if task_id > 1:
         # print(f"past_tasks: {past_tasks}")
         # TODO
         # z = zdist.sample((batch_size,))
@@ -290,11 +290,11 @@ for task_id in task_range:
         # # initialize model parameters with the most similar previous task
         # rel_task_id = -1
         # if task_id > 1:
-        rel_task_id = -1
-        init_cam_weights(generator.module, 'Gen_ResnetBlock', task_id, rel_task_id) # TODO: modify with distance learning
+        # rel_task_id = -1
+        # init_cam_weights(generator.module, 'Gen_ResnetBlock', task_id, rel_task_id) # TODO: modify with distance learning
         # control_gradients(generator, 'task_ResnetBlock', past_tasks, False)
 
-        n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
+        # n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
 
     for epoch_idx in range(n_epoch):
         # epoch_idx += 1

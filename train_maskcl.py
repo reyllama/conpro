@@ -81,14 +81,14 @@ backup_every = config['training']['backup_every']
 sample_nlabels = config['training']['sample_nlabels']
 
 ######### prompt #########
-exp_setting = "freeze_embedding_init_real_fix" # For free form code level changes that are not contained in config.yaml
+exp_setting = "MIXING" # For free form code level changes that are not contained in config.yaml
 ##########################
 
 # Compose experiment output directory
 out_dir = config['training']['out_dir']
 exp_name = config['generator']['name']+'_'+ str(config['generator']['kwargs']['nfilter']) +'_' \
             + str(config['generator']['kwargs']['embed_size'])
-exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + "_dstep_" + str(config['training']['d_steps']) + \
+exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + f"_{str(config['training']['mdl_g_wt'])}_{str(config['training']['mdl_d_wt'])}" + "_dstep_" + str(config['training']['d_steps']) + \
     "_gstep_" + str(config['training']['g_steps']) + "_rank_" + str(config['generator']['kwargs']['rank'])
 if exp_setting:
     exp_name += f"_misc_{exp_setting}"
@@ -254,7 +254,7 @@ for task_id in task_range:
                       device=device)
 
     # Save for tests
-    ntest = batch_size
+    ntest = 16
     x_real, ytest = utils.get_nsamples(train_loader, ntest)
     ytest.clamp_(None, nlabels - 1)
     ztest = zdist.sample((ntest,))
