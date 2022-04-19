@@ -1,0 +1,79 @@
+data:
+  type: image
+  train_dir:
+    task_1: data/continual-100/task_1
+    task_2: data/continual-100/task_2
+    task_3: data/continual-100/task_3
+    task_4: data/continual-100/task_4
+    task_5: data/continual-100/task_5
+    task_6: data/continual-100/task_6
+    task_7: data/continual-100/task_7
+  test_dir: data/continual
+  data_fix: CELEBA
+  pretrain_dir: ./pretrained_model/
+  lsun_categories_train: [bedroom_train]
+  lsun_categories_test: [bedroom_test]
+  img_size: 256
+  nlabels: 7
+generator:
+  name: resnet4_cam
+  kwargs:
+    nfilter: 64
+    nfilter_max: 256
+    embed_size: 1
+    rank: 20
+discriminator:
+  name: resnet4_cam
+  kwargs:
+    nfilter: 64
+    nfilter_max: 256
+    embed_size: 1
+z_dist:
+  type: gauss
+  dim: 256
+training:
+  use_pretrain: true
+  out_dir: ../conpro_experiments/experiments/cl-100/cam
+  gan_type: standard
+  reg_type: real
+  reg_param: 10.
+  batch_size: 16
+  nworkers: 16
+  take_model_average: true
+  model_average_beta: 0.999
+  model_average_reinit: false
+  monitoring: tensorboard
+  sample_every: 100
+  sample_nlabels: 30
+  inception_every: -1
+  save_every: 500
+  backup_every: 100000
+  restart_every: -1
+  mdl_every: 100000
+  supcon_every: 1000000
+  optimizer: adam
+  lr_g: 0.0001
+  lr_d: 0.0001
+  lr_anneal: 1.
+  lr_anneal_every: 150000
+  d_steps: 1
+  g_steps: 1
+  equalize_lr: false
+  model_file: model.pt
+  n_epoch: 50000
+  n_epoch_factor: 1
+  n_task: 7
+  coef_distribution: dirichlet
+  mdl_d_wt: 1.0
+  mdl_g_wt: 1000.0
+test:
+  batch_size: 8
+  sample_size: 36
+  sample_nrow: 6
+  use_model_average: true
+  compute_inception: false
+  conditional_samples: false
+  model_file: model.pt
+interpolations:
+  nzs: 10
+  nsubsteps: 75

@@ -1,0 +1,30 @@
+data:
+  type: image
+  train_dir: data/anime-face-full
+  test_dir: data/anime-face-full
+  img_size: 256
+generator:
+  name: resnet
+  kwargs:
+    nfilter: 16
+    nfilter_max: 512
+    embed_size: 1
+discriminator:
+  name: resnet
+  kwargs:
+    nfilter: 16
+    nfilter_max: 512
+    embed_size: 1
+z_dist:
+  type: gauss
+  dim: 256
+training:
+  out_dir: experiments/anime-face-full-resnet
+  batch_size: 16
+test:
+  batch_size: 16
+  sample_size: 5
+  sample_nrow: 2
+interpolations:
+  nzs: 10
+  nsubsteps: 75
