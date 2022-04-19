@@ -32,12 +32,14 @@ def modulated_conv(x, y, weight, bias, weight_mask_left, weight_mask_right, bias
     return F.conv2d(x, filters, bias_, 1, padding)
 
 class ConvLayer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, instance_norm=False, channels_last=False, rank=-1, n_task=-1):
+    def __init__(self, in_channels, out_channels, kernel_size=3, instance_norm=False, channels_last=False, rank=-1, n_task=-1, pointwise=False):
         super().__init__()
         self.padding = kernel_size // 2 # preserve resolution
         memory_format = torch.channels_last if channels_last else torch.contiguous_format
         self.weight = nn.Parameter(2*torch.rand([out_channels, in_channels, kernel_size, kernel_size])-1).to(memory_format=memory_format) # normal -> uniform(-1,1)
         self.bias = nn.Parameter(torch.zeros([out_channels]))
+        if pointwise:
+            self.weight = nn.Parameter(torch.ones([out_channels, in_channels, kernel_size, kernel_size])).to(memory_format=memory_format)
         self.weight_gain = 1 / math.sqrt(in_channels * (kernel_size ** 2)) # normalize (equivalent to initialization) <- redundant if init. with pretrained weights
 
         self.n_task = n_task
@@ -105,14 +107,18 @@ class Gen_ResnetBlock(nn.Module):
             self.fhidden = fhidden
 
         self.conv_0 = ConvLayer(self.fin, self.fhidden, kernel_size, instance_norm, channels_last, rank, n_task)
+        self.conv_mix = ConvLayer(self.fhidden, self.fhidden, 1, instance_norm, channels_last, rank, n_task, pointwise=True)
         self.conv_1 = ConvLayer(self.fhidden, self.fout, kernel_size, instance_norm, channels_last, rank, n_task)
 
         if self.learned_shortcut:
             self.conv_s = ConvLayer(self.fin, self.fout, 1, instance_norm, channels_last, rank, n_task)
 
     def forward(self, x, y):
+        task_id = y[0]
         x_s = self._shortcut(x, y)
         dx = self.conv_0(actvn(x), y)
+        if task_id>0:
+            dx = self.conv_mix(actvn(dx), y)
         dx = self.conv_1(actvn(dx), y)
         out = x_s + 0.1*dx
 
