@@ -38,6 +38,8 @@ def init_cam_weights(model, target, cur_task_id, rel_task_id=-1):
 
 # re-initialize discriminator after each task (to Celeb-A weights)
 def reinit_discriminator(model, weights):
+    src_params = model.module.state_dict()
+    src_params.update(weights)
     model.module.load_state_dict(weights)
     # clear grads
     for param in model.module.parameters():
