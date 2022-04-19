@@ -40,7 +40,7 @@ def init_cam_weights(model, target, cur_task_id, rel_task_id=-1):
 def reinit_discriminator(model, weights):
     src_params = model.module.state_dict()
     src_params.update(weights)
-    model.module.load_state_dict(weights)
+    model.module.load_state_dict(src_params)
     # clear grads
     for param in model.module.parameters():
         param.grad = None
