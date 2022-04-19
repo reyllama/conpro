@@ -95,7 +95,7 @@ backup_every = config['training']['backup_every']
 sample_nlabels = config['training']['sample_nlabels']
 
 ######### prompt #########
-exp_setting = "CAM_RandomInit" # For free form code level changes that are not contained in config.yaml
+exp_setting = config['training']['misc'] # For free form code level changes that are not contained in config.yaml
 ##########################
 
 # Compose experiment output directory
