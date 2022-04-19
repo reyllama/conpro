@@ -1,13 +1,13 @@
 data:
   type: image
   train_dir:
-    task_1: data/continual-100/task_1
-    task_2: data/continual-100/task_2
-    task_3: data/continual-100/task_3
-    task_4: data/continual-100/task_4
-    task_5: data/continual-100/task_5
-    task_6: data/continual-100/task_6
-    task_7: data/continual-100/task_7
+    task_1: ../conpro_experiments/data/continual-100/task_1
+    task_2: ../conpro_experiments/data/continual-100/task_2
+    task_3: ../conpro_experiments/data/continual-100/task_3
+    task_4: ../conpro_experiments/data/continual-100/task_4
+    task_5: ../conpro_experiments/data/continual-100/task_5
+    task_6: ../conpro_experiments/data/continual-100/task_6
+    task_7: ../conpro_experiments/data/continual-100/task_7
   test_dir: data/continual
   data_fix: CELEBA
   pretrain_dir: ./pretrained_model/
@@ -33,7 +33,7 @@ z_dist:
   dim: 256
 training:
   use_pretrain: true
-  out_dir: ../conpro_experiments/experiments/cl-100/cam
+  out_dir: ../conpro_experiments/experiments/cl/100/cam
   gan_type: standard
   reg_type: real
   reg_param: 10.

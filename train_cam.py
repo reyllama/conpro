@@ -85,7 +85,7 @@ backup_every = config['training']['backup_every']
 sample_nlabels = config['training']['sample_nlabels']
 
 ######### prompt #########
-exp_setting = "CAM" # For free form code level changes that are not contained in config.yaml
+exp_setting = "CAM_RandomInit" # For free form code level changes that are not contained in config.yaml
 ##########################
 
 # Compose experiment output directory
@@ -290,7 +290,7 @@ for task_id in task_range:
         # # initialize model parameters with the most similar previous task
         # rel_task_id = -1
         # if task_id > 1:
-        rel_task_id = task_id-1
+        rel_task_id = -1
         init_cam_weights(generator.module, 'Gen_ResnetBlock', task_id, rel_task_id) # TODO: modify with distance learning
         # control_gradients(generator, 'task_ResnetBlock', past_tasks, False)
 
