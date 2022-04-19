@@ -10,7 +10,7 @@ data:
     task_7: ../conpro_experiments/data/continual-100/task_7
   test_dir: data/continual
   data_fix: CELEBA
-  pretrain_dir: ./pretrained_model/
+  pretrain_dir: ../conpro_experiments/pretrained_model/
   lsun_categories_train: [bedroom_train]
   lsun_categories_test: [bedroom_test]
   img_size: 256
