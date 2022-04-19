@@ -33,7 +33,7 @@ z_dist:
   dim: 256
 training:
   use_pretrain: true
-  out_dir: /xmgen/conpro_experiments/experiments/dummy
+  out_dir: ../conpro_experiments/experiments/dummy
   gan_type: standard
   reg_type: real
   reg_param: 10.
@@ -43,7 +43,7 @@ training:
   model_average_beta: 0.999
   model_average_reinit: false
   monitoring: tensorboard
-  sample_every: 3
+  sample_every: 10
   sample_nlabels: 30
   inception_every: -1
   save_every: 500
