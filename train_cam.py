@@ -306,8 +306,9 @@ for task_id in task_range:
 
         # n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
         # initialize discriminator
-        reinit_discriminator(discriminator, dict_D)
-        print("Re-initializing discriminator weights")
+        if config['training']['d_reinit']:
+            reinit_discriminator(discriminator, dict_D)
+            print("Re-initializing discriminator weights")
 
     for epoch_idx in range(n_epoch):
         # epoch_idx += 1
