@@ -37,7 +37,7 @@ training:
   gan_type: standard
   reg_type: real
   reg_param: 10.
-  batch_size: 16
+  batch_size: 32
   nworkers: 16
   take_model_average: true
   model_average_beta: 0.999
@@ -49,7 +49,7 @@ training:
   save_every: 500
   backup_every: 100000
   restart_every: -1
-  mdl_every: 100000
+  mdl_every: 1000000
   supcon_every: 1000000
   optimizer: adam
   lr_g: 0.0001
@@ -60,12 +60,12 @@ training:
   g_steps: 1
   equalize_lr: false
   model_file: model.pt
-  n_epoch: 50000
+  n_epoch: 20000
   n_epoch_factor: 1
   n_task: 7
   coef_distribution: dirichlet
-  mdl_d_wt: 1.0
-  mdl_g_wt: 1000.0
+  mdl_d_wt: 10.0
+  mdl_g_wt: 100.0
 test:
   batch_size: 8
   sample_size: 36
