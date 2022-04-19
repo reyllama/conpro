@@ -54,6 +54,23 @@ def update_recursive(dict1, dict2):
         else:
             dict1[k] = v
 
+def build_discriminator(config):
+    Discriminator = discriminator_dict[config['discriminator']['name']]
+
+    # Build models
+    if config['training'].get('use_pretrain', False):  # TODO: verify if this part well functions (dict?)
+        nlabels = config['data']['nlabels'] + 1
+    else:
+        nlabels = config['data']['nlabels']
+
+    discriminator = Discriminator(
+        config['discriminator']['name'],
+        nlabels=nlabels,
+        size=config['data']['img_size'],
+        **config['discriminator']['kwargs']
+    )
+
+    return discriminator
 
 def build_models(config):
     # Get classes

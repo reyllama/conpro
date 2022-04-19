@@ -16,7 +16,7 @@ from gan_training.inputs import get_dataset
 from gan_training.distributions import get_ydist, get_zdist
 from gan_training.eval import Evaluator
 from gan_training.config import (
-    load_config, build_models, build_optimizers, build_lr_scheduler,
+    load_config, build_models, build_optimizers, build_lr_scheduler, build_discriminator
 )
 
 # Initialize parameters with the most similar previous task
@@ -35,6 +35,13 @@ def init_cam_weights(model, target, cur_task_id, rel_task_id=-1):
                             getattr(module, attr_name)[rel_task_id - 1].bias.data)
                     except:
                         pass
+
+# re-initialize discriminator after each task (to Celeb-A weights)
+def reinit_discriminator(model, weights):
+    model.module.load_state_dict(weights)
+    # clear grads
+    for param in model.module.parameters():
+        param.grad = None
 
 # Clamp parameters in a given range
 def clamp_weights(model, target, min_val, max_val):
@@ -60,6 +67,7 @@ def control_gradients(model, target, idx=[], requires_grad=False):
                         child[i].bias.grad = None
                     except:
                         pass
+
 
 # Arguments
 parser = argparse.ArgumentParser(
@@ -274,7 +282,7 @@ for task_id in task_range:
     # logger.add_imgs(x, '%04d' % y_inst, -1)
 
     # From second task
-    # if task_id > 1:
+    if task_id > 1:
         # print(f"past_tasks: {past_tasks}")
         # TODO
         # z = zdist.sample((batch_size,))
@@ -295,6 +303,9 @@ for task_id in task_range:
         # control_gradients(generator, 'task_ResnetBlock', past_tasks, False)
 
         # n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
+        # initialize discriminator
+        reinit_discriminator(discriminator, dict_D)
+        print("Re-initializing discriminator weights")
 
     for epoch_idx in range(n_epoch):
         # epoch_idx += 1
@@ -354,8 +365,9 @@ for task_id in task_range:
             d_loss_last = logger.get_last('losses', 'discriminator')
             mdl_d_loss_last = logger.get_last('losses', 'mdl-d')
             d_reg_last = logger.get_last('losses', 'regularizer')
-            print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, reg=%.3f'
-                  % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, d_reg_last))
+            if it % 30 == 0:
+                print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, reg=%.3f'
+                    % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, d_reg_last))
 
             # clamp_weights(generator, 'mixing', 0.2, 0.8)
             # print(getattr(generator.module, 'mixing_0_pls'))
