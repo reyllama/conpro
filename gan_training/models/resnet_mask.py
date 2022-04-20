@@ -31,15 +31,36 @@ def modulated_conv(x, y, weight, bias, weight_mask_left, weight_mask_right, bias
         bias_ = bias
     return F.conv2d(x, filters, bias_, 1, padding)
 
+# Seperately define 1x1 conv
+class pointConvLayer(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=1, groups=4, instance_norm=False, channels_last=False, rank=-1, n_task=-1):
+        super().__init__()
+        self.padding = kernel_size // 2
+        self.kernel_size = kernel_size
+        self.groups = groups
+        memory_format = torch.channels_last if channels_last else torch.contiguous_format
+        # initialization
+        weights = torch.cat([nn.Conv2d(in_channels, out_channels, kernel_size, groups=groups).weight.data.unsqueeze(0) for _ in range(n_task-1)], dim=0)
+        biases = torch.cat([nn.Conv2d(in_channels, out_channels, kernel_size, groups=groups).bias.data.unsqueeze(0) for _ in range(n_task-1)], dim=0)
+        self.weight_mask = nn.Parameter(weights)
+        self.bias_mask = nn.Parameter(biases)
+        self.n_task = n_task
+        self.instance_norm = instance_norm
+
+    def forward(self, x, y):
+        task_id = y[0]-1
+        if self.instance_norm:
+            x = x / (x.std(dim=[2,3], keepdim=True) + 1e-8)
+        return F.conv2d(x, self.weight_mask[task_id].to(dtype=x.dtype), self.bias_mask[task_id], self.kernel_size, self.padding, groups=self.groups)
+
+
 class ConvLayer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, instance_norm=False, channels_last=False, rank=-1, n_task=-1, pointwise=False):
+    def __init__(self, in_channels, out_channels, kernel_size=3, instance_norm=False, channels_last=False, rank=-1, n_task=-1):
         super().__init__()
         self.padding = kernel_size // 2 # preserve resolution
         memory_format = torch.channels_last if channels_last else torch.contiguous_format
         self.weight = nn.Parameter(2*torch.rand([out_channels, in_channels, kernel_size, kernel_size])-1).to(memory_format=memory_format) # normal -> uniform(-1,1)
         self.bias = nn.Parameter(torch.zeros([out_channels]))
-        if pointwise: # All 1x1 conv layers are learnable, so fix weight to 1 and update mask
-            self.weight = nn.Parameter(torch.ones([out_channels, in_channels, kernel_size, kernel_size])).to(memory_format=memory_format)
         self.weight_gain = 1 / math.sqrt(in_channels * (kernel_size ** 2)) # normalize (equivalent to initialization) <- redundant if init. with pretrained weights
 
         self.n_task = n_task
@@ -107,7 +128,7 @@ class Gen_ResnetBlock(nn.Module):
             self.fhidden = fhidden
 
         self.conv_0 = ConvLayer(self.fin, self.fhidden, kernel_size, instance_norm, channels_last, rank, n_task)
-        self.conv_mix = ConvLayer(self.fhidden, self.fhidden, 1, instance_norm, channels_last, rank, n_task, pointwise=True)
+        self.conv_mix = pointConvLayer(self.fhidden, self.fhidden, 1, 4, instance_norm, channels_last, rank, n_task)
         self.conv_1 = ConvLayer(self.fhidden, self.fout, kernel_size, instance_norm, channels_last, rank, n_task)
 
         if self.learned_shortcut:
