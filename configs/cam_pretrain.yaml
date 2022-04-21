@@ -32,8 +32,8 @@ z_dist:
   type: gauss
   dim: 256
 training:
-  misc: RandInit
-  d_reinit: false
+  misc: ReInit
+  d_reinit: true
   use_pretrain: true
   out_dir: ../conpro_experiments/experiments/cl/100/cam
   gan_type: standard
@@ -51,7 +51,7 @@ training:
   save_every: 500
   backup_every: 100000
   restart_every: -1
-  mdl_every: 4
+  mdl_every: 1000000
   supcon_every: 1000000
   optimizer: adam
   lr_g: 0.0001
@@ -62,7 +62,7 @@ training:
   g_steps: 1
   equalize_lr: false
   model_file: model.pt
-  n_epoch: 20000
+  n_epoch: 10000
   n_epoch_factor: 1
   n_task: 7
   coef_distribution: dirichlet
