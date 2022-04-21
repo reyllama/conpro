@@ -19,10 +19,12 @@ if __name__ == '__main__':
         content = pickle.load(pickle_file)
 
     if args.cur_iter:
+        print('='*40)
         print(f"Current Iteration: {content['losses']['discriminator'][-1][0]}")
         print(f"Current D-Loss: {content['losses']['discriminator'][-1][1]:.4f}")
         print(f"Current G-Loss: {content['losses']['generator'][-1][1]:.4f}")
         print(f"Current Reg-strength: {content['losses']['regularizer'][-1][1]:.4f}")
+        print('='*40)
 
     else:
         its, ds, gs, regs = [], [], [], []
