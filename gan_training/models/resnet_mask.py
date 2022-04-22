@@ -31,7 +31,7 @@ def modulated_conv(x, y, weight, bias, weight_mask_left, weight_mask_right, bias
         bias_ = bias
     return F.conv2d(x, filters, bias_, 1, padding)
 
-# Seperately define 1x1 conv
+# Seperately define 1x1 conv where there is no base filters
 class pointConvLayer(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=1, groups=4, instance_norm=False, channels_last=False, rank=-1, n_task=-1):
         super().__init__()

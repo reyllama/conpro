@@ -134,7 +134,7 @@ class SupConLoss(nn.Module):
             mask = mask.float().to(device)
 
         contrast_count = features.shape[1]
-        contrast_feature = torch.cat(torch.unbind(features, dim=1), dim=0)
+        contrast_feature = torch.cat(torch.unbind(features, dim=1), dim=0) # unbind view-dimension and concat into batch-dimension
         if self.contrast_mode == 'one':
             anchor_feature = features[:, 0]
             anchor_count = 1
@@ -206,6 +206,7 @@ class Trainer(object):
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.batch_size = batch_size
+        self.supcon = SupConLoss()
 
         # self.mdl_g_wt = mdl_g_wt
         self.gan_type = config['training']['gan_type']
@@ -214,6 +215,7 @@ class Trainer(object):
         self.distribution_name = config['training']['coef_distribution']
         self.mdl_d_wt = config['training']['mdl_d_wt']
         self.mdl_g_wt = config['training']['mdl_g_wt']
+        self.supcon_wt = config['training']['supcon_wt']
 
         # Todo: needs to be altered
         self.is_conpro = ('conpro' in config['generator']['name']) or ('cam' in config['generator']['name'])
@@ -250,6 +252,65 @@ class Trainer(object):
         self.g_optimizer.step()
 
         return gloss.item()
+
+    def compute_discriminator_supcon(self, images, labels):
+        """
+
+        Args:
+            images: concatenation of real and generated (replay) images
+            labels: class labels
+        Returns: supcon loss
+
+        """
+        _, feats = self.discriminator(images, labels, mdl=True, idx=None) # feats = [batch_feat_0, ... , batch_feat_k]
+        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1) # exclusive of the upper bound (1,2,3,4,5)
+        feat = feats[feat_ind]
+        batch_size = feat.size(0) # this is not actually batch_size, but concatenation with replay samples
+        feat = feat.view(batch_size, -1).unsqueeze(1) # (N, 1, feat_dim)
+        # TODO: This can be asymmetric as well (target_labels=[int(y[0])])
+        target_labels = list(range(int(labels[0])))
+        supcon_loss = self.supcon(feat, labels, target_labels=target_labels)
+        return supcon_loss
+
+    def discriminator_supcon(self, x_real, y, z):
+
+        # x_real: real images
+        # y: labels for x_real
+
+        toggle_grad(self.generator, False)
+        toggle_grad(self.discriminator, True)
+        self.generator.train()
+        self.discriminator.train()
+        self.d_optimizer.zero_grad()
+
+        batch_size = x_real.size(0)
+
+        x_real.requires_grad_()
+
+        # On fake data
+        past_cls = list(range(int(y[0])))
+        n_sample_past = min(batch_size // len(past_cls), 2)
+        past_y = [label for label in past_cls for _ in range(n_sample_past)]
+        past_y = torch.Tensor(past_y).to(y)
+        with torch.no_grad():
+            x_fake, _ = self.generator(z, past_y)
+
+        x_fake.requires_grad_()
+
+        images = torch.cat([x_real, x_fake], dim=0)
+        labels = torch.cat([y, past_y], dim=0)
+
+        supcon_loss = self.compute_discriminator_supcon(images, labels)
+
+        dloss_supcon = self.supcon_wt * supcon_loss
+        dloss_supcon.backward()
+
+        self.d_optimizer.step()
+
+        toggle_grad(self.discriminator, False)
+
+        # Output
+        return dloss_supcon.item()
 
     def discriminator_trainstep(self, x_real, y, z):
         toggle_grad(self.generator, False)
@@ -356,7 +417,7 @@ class Trainer(object):
         dist_source = sfm(alpha)
         input_image = torch.cat([interp_image, fake_image], dim=0)
 
-        feat_ind = np.random.randint(0, self.discriminator.module.num_layers - 3)
+        feat_ind = np.random.randint(0, self.discriminator.module.num_layers - 3) # (0,1,2,3) -> (2,3,4,5)th resblock activation
 
         interp_pred, feats = self.discriminator(input_image, y, mdl=True, idx=feat_ind)
         # interp_feat, fake_feat = feats[:batch_size], feats[batch_size:]
@@ -366,7 +427,7 @@ class Trainer(object):
         # adv_loss = self.compute_loss(interp_pred, 0)
         adv_loss = d_logistic_loss(interp_pred) # TODO: Note I arbitrarily applied logistic loss (patch discrimination) here, might be a problem
 
-        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1, size=batch_size)
+        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1, size=batch_size) # exclusive of the upper bound (1,2,3,4,5)
 
         # computing distances among target generations
         dist_target = torch.zeros([batch_size, batch_size]).cuda()

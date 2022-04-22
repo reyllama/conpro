@@ -32,7 +32,7 @@ z_dist:
   type: gauss
   dim: 256
 training:
-  misc: ReInit-AF
+  misc: ReInit-AF-Supcon
   d_reinit: true
   use_pretrain: true
   out_dir: ../conpro_experiments/experiments/cl/100/cam
@@ -52,7 +52,7 @@ training:
   backup_every: 100000
   restart_every: -1
   mdl_every: 1000000
-  supcon_every: 1000000
+  supcon_every: 2
   optimizer: adam
   lr_g: 0.0001
   lr_d: 0.0001
@@ -68,6 +68,7 @@ training:
   coef_distribution: dirichlet
   mdl_d_wt: 10.0
   mdl_g_wt: 100.0
+  supcon_wt: 1.0
 test:
   batch_size: 8
   sample_size: 36

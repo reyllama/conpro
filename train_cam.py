@@ -336,6 +336,11 @@ for task_id in task_range:
                 z = zdist.sample((batch_size,))
 
                 # Alternate between regular train step and MDL step
+
+                if (it+1) % supcon_every == 0:
+                    supcon_loss = trainer.discriminator_supcon(x_real, y, z)
+                    logger.add('losses', 'supcon', supcon_loss, it=it)
+
                 if (it+1) % mdl_every == 0:
                     dloss, mdl_dloss = trainer.discriminator_mdl(x_real, y, z)
                     logger.add('losses', 'discriminator', dloss, it=it)
