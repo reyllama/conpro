@@ -373,7 +373,7 @@ for task_id in task_range:
             d_loss_last = logger.get_last('losses', 'discriminator')
             mdl_d_loss_last = logger.get_last('losses', 'mdl-d')
             d_reg_last = logger.get_last('losses', 'regularizer')
-            if it % 30 == 0:
+            if it % 1 == 0:
                 print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, reg=%.3f'
                     % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, d_reg_last))
 
