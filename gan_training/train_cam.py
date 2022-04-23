@@ -212,7 +212,7 @@ class Trainer(object):
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.batch_size = batch_size
-        self.supcon = SupConLoss(temperature=1, base_temperature=1)
+        self.supcon = SupConLoss(temperature=0.1, base_temperature=0.1)
 
         # self.mdl_g_wt = mdl_g_wt
         self.gan_type = config['training']['gan_type']
@@ -273,6 +273,7 @@ class Trainer(object):
         feat = feats[feat_ind]
         batch_size = feat.size(0) # this is not actually batch_size, but concatenation with replay samples
         feat = feat.view(batch_size, -1).unsqueeze(1) # (N, 1, feat_dim)
+        feat = F.normalize(feat, dim=2)
         print(f"feat_dim: {feat.size()}")
         print(f"feat_ind: {feat_ind}")
         print(f"labels: {labels}")
