@@ -212,7 +212,7 @@ class Trainer(object):
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.batch_size = batch_size
-        self.supcon = SupConLoss(temperature=100, base_temperature=100)
+        self.supcon = SupConLoss(temperature=1, base_temperature=1)
 
         # self.mdl_g_wt = mdl_g_wt
         self.gan_type = config['training']['gan_type']
