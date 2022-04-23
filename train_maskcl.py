@@ -88,7 +88,8 @@ exp_setting = config['training']['misc'] # For free form code level changes that
 out_dir = config['training']['out_dir']
 exp_name = config['generator']['name']+'_'+ str(config['generator']['kwargs']['nfilter']) +'_' \
             + str(config['generator']['kwargs']['embed_size'])
-exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + f"_{str(config['training']['mdl_g_wt'])}_{str(config['training']['mdl_d_wt'])}" + "_dstep_" + str(config['training']['d_steps']) + \
+exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + "_supcon_" + str(config['training']['supcon_every']) \
+            f"_{str(config['training']['mdl_g_wt'])}_{str(config['training']['mdl_d_wt'])}" + "_dstep_" + str(config['training']['d_steps']) + \
     "_gstep_" + str(config['training']['g_steps']) + "_rank_" + str(config['generator']['kwargs']['rank'])
 if exp_setting:
     exp_name += f"_misc_{exp_setting}"
