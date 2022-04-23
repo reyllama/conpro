@@ -102,7 +102,8 @@ exp_setting = config['training']['misc'] # For free form code level changes that
 out_dir = config['training']['out_dir']
 exp_name = config['generator']['name']+'_'+ str(config['generator']['kwargs']['nfilter']) +'_' \
             + str(config['generator']['kwargs']['embed_size'])
-exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + "_dstep_" + str(config['training']['d_steps']) + \
+exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + \
+            "_supcon_" + str(config['training']['supcon_every']) + "_dstep_" + str(config['training']['d_steps']) + \
     "_gstep_" + str(config['training']['g_steps']) + "_rank_" + str(config['generator']['kwargs']['rank'])
 if exp_setting:
     exp_name += f"_misc_{exp_setting}"
@@ -372,10 +373,11 @@ for task_id in task_range:
             mdl_g_loss_last = logger.get_last('losses', 'mdl-g')
             d_loss_last = logger.get_last('losses', 'discriminator')
             mdl_d_loss_last = logger.get_last('losses', 'mdl-d')
+            supcon_last = logger.get_last('losses', 'supcon')
             d_reg_last = logger.get_last('losses', 'regularizer')
             if it % 1 == 0:
-                print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, reg=%.3f'
-                    % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, d_reg_last))
+                print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, supcon = %.3f, reg=%.3f'
+                    % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, supcon_last, d_reg_last))
 
             # clamp_weights(generator, 'mixing', 0.2, 0.8)
             # print(getattr(generator.module, 'mixing_0_pls'))

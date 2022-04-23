@@ -151,7 +151,7 @@ class SupConLoss(nn.Module):
         # for numerical stability
         logits_max, _ = torch.max(anchor_dot_contrast, dim=1, keepdim=True)
         logits = anchor_dot_contrast - logits_max.detach()
-        print(f"logits: {logits}")
+        # print(f"logits: {logits}")
 
         # tile mask
         mask = mask.repeat(anchor_count, contrast_count)
@@ -163,21 +163,21 @@ class SupConLoss(nn.Module):
             0
         )
         mask = mask * logits_mask
-        print(f"mask: {mask}")
+        # print(f"mask: {mask}")
 
         # compute log_prob
         exp_logits = torch.exp(logits) * logits_mask
-        print(f"exp_logits: {exp_logits}")
+        # print(f"exp_logits: {exp_logits}")
         log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
-        print(f"log_prob: {log_prob}")
+        # print(f"log_prob: {log_prob}")
 
         # compute mean of log-likelihood over positive
         mean_log_prob_pos = (mask * log_prob).sum(1) / mask.sum(1)
-        print(f"mean_log_prob_pos: {mean_log_prob_pos}")
+        # print(f"mean_log_prob_pos: {mean_log_prob_pos}")
 
         # loss
         loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos
-        print(f"supcon_loss: {loss}")
+        # print(f"supcon_loss: {loss}")
 
         curr_class_mask = torch.zeros_like(labels)
         for tc in target_labels:
@@ -274,12 +274,12 @@ class Trainer(object):
         batch_size = feat.size(0) # this is not actually batch_size, but concatenation with replay samples
         feat = feat.view(batch_size, -1).unsqueeze(1) # (N, 1, feat_dim)
         feat = F.normalize(feat, dim=2)
-        print(f"feat_dim: {feat.size()}")
-        print(f"feat_ind: {feat_ind}")
-        print(f"labels: {labels}")
+        # print(f"feat_dim: {feat.size()}")
+        # print(f"feat_ind: {feat_ind}")
+        # print(f"labels: {labels}")
         # TODO: This can be asymmetric as well (target_labels=[int(y[0])])
         target_labels = list(range(int(labels[0])))
-        print(f"supcon target labels: {target_labels}")
+        # print(f"supcon target labels: {target_labels}")
         supcon_loss = self.supcon(feat, labels, target_labels=target_labels)
         return supcon_loss
 
@@ -300,13 +300,13 @@ class Trainer(object):
 
         # On fake data
         past_cls = list(range(int(y[0])))
-        print(f"past_cls: {past_cls}")
+        # print(f"past_cls: {past_cls}")
         n_sample_past = max(batch_size // len(past_cls), 2)
         past_y = [label for label in past_cls for _ in range(n_sample_past)]
         past_y = torch.Tensor(past_y).to(y)
-        print(f"past_y: {past_y}")
+        # print(f"past_y: {past_y}")
         z = zdist.sample((past_y.size(0),))
-        print(f"z size: {z.size()}")
+        # print(f"z size: {z.size()}")
         with torch.no_grad():
             x_fake, _ = self.generator(z, past_y)
 
@@ -317,7 +317,7 @@ class Trainer(object):
 
         supcon_loss = self.compute_discriminator_supcon(images, labels)
 
-        print(f"supcon_loss: {supcon_loss.item()}")
+        # print(f"supcon_loss: {supcon_loss.item()}")
 
         dloss_supcon = self.supcon_wt * supcon_loss
         dloss_supcon.backward()
