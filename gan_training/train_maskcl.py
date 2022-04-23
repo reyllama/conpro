@@ -206,6 +206,7 @@ class Trainer(object):
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.batch_size = batch_size
+        self.supcon = SupConLoss(temperature=0.1, base_temperature=0.1)
 
         # self.gan_type = gan_type
         # self.reg_type = reg_type
