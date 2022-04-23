@@ -269,6 +269,7 @@ class Trainer(object):
         feat = feat.view(batch_size, -1).unsqueeze(1) # (N, 1, feat_dim)
         # TODO: This can be asymmetric as well (target_labels=[int(y[0])])
         target_labels = list(range(int(labels[0])))
+        print(f"supcon target labels: {target_labels}")
         supcon_loss = self.supcon(feat, labels, target_labels=target_labels)
         return supcon_loss
 
@@ -289,10 +290,13 @@ class Trainer(object):
 
         # On fake data
         past_cls = list(range(int(y[0])))
+        print(f"past_cls: {past_cls}")
         n_sample_past = min(batch_size // len(past_cls), 2)
         past_y = [label for label in past_cls for _ in range(n_sample_past)]
         past_y = torch.Tensor(past_y).to(y)
+        print(f"past_y: {past_y}")
         z = zdist.sample((past_y.size(0),))
+        print(f"z size: {z.size()}")
         with torch.no_grad():
             x_fake, _ = self.generator(z, past_y)
 
@@ -302,6 +306,8 @@ class Trainer(object):
         labels = torch.cat([y, past_y], dim=0)
 
         supcon_loss = self.compute_discriminator_supcon(images, labels)
+
+        print(f"supcon_loss: {supcon_loss.item()}")
 
         dloss_supcon = self.supcon_wt * supcon_loss
         dloss_supcon.backward()
