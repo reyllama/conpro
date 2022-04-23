@@ -318,6 +318,11 @@ for task_id in task_range:
                 z = zdist.sample((batch_size,))
 
                 # Alternate between regular train step and MDL step
+
+                if (it+1) % supcon_every == 0:
+                    supcon_loss = trainer.discriminator_supcon(x_real, y, zdist)
+                    logger.add('losses', 'supcon', supcon_loss, it=it)
+
                 if (it+1) % mdl_every == 0:
                     dloss, mdl_dloss = trainer.discriminator_mdl(x_real, y, z)
                     logger.add('losses', 'discriminator', dloss, it=it)
@@ -349,9 +354,11 @@ for task_id in task_range:
             mdl_g_loss_last = logger.get_last('losses', 'mdl-g')
             d_loss_last = logger.get_last('losses', 'discriminator')
             mdl_d_loss_last = logger.get_last('losses', 'mdl-d')
+            supcon_last = logger.get_last('losses', 'supcon')
             d_reg_last = logger.get_last('losses', 'regularizer')
-            print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, reg=%.3f'
-                  % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, d_reg_last))
+            if it % 1 == 0:
+                print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, supcon = %.3f, reg=%.3f'
+                    % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, supcon_last, d_reg_last))
 
             # clamp_weights(generator, 'mixing', 0.2, 0.8)
             # print(getattr(generator.module, 'mixing_0_pls'))
