@@ -141,7 +141,7 @@ class Discriminator(nn.Module):
         out = self.resnet_5_0(out)
         if mdl:
             feats.append(out)
-            if not idx:
+            if idx is None:
                 return None, feats
             feat = feats[2 + idx]  # 0<=idx<=3
             feat = feat[:batch_size // 2]  # only those for interpolated images

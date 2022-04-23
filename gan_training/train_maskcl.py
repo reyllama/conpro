@@ -221,6 +221,7 @@ class Trainer(object):
         self.distribution_name = config['training']['coef_distribution']
         self.mdl_d_wt = config['training']['mdl_d_wt']
         self.mdl_g_wt = config['training']['mdl_g_wt']
+        self.supcon_wt = config['training']['supcon_wt']
 
         # Todo: needs to be altered
         self.is_conpro = ('conpro' in config['generator']['name']) or ('mask' in config['generator']['name'])
@@ -257,6 +258,76 @@ class Trainer(object):
         self.g_optimizer.step()
 
         return gloss.item()
+
+    def compute_discriminator_supcon(self, images, labels):
+        """
+
+        Args:
+            images: concatenation of real and generated (replay) images
+            labels: class labels
+        Returns: supcon loss
+
+        """
+        _, feats = self.discriminator(images, labels, mdl=True, idx=None) # feats = [batch_feat_0, ... , batch_feat_k]
+        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1) # exclusive of the upper bound (1,2,3,4,5)
+        feat = feats[feat_ind]
+        batch_size = feat.size(0) # this is not actually batch_size, but concatenation with replay samples
+        feat = feat.view(batch_size, -1).unsqueeze(1) # (N, 1, feat_dim)
+        feat = F.normalize(feat, dim=2)
+        # print(f"feat_dim: {feat.size()}")
+        # print(f"feat_ind: {feat_ind}")
+        # print(f"labels: {labels}")
+        # TODO: This can be asymmetric as well (target_labels=[int(y[0])])
+        target_labels = list(range(int(labels[0])))
+        # print(f"supcon target labels: {target_labels}")
+        supcon_loss = self.supcon(feat, labels, target_labels=target_labels)
+        return supcon_loss
+
+    def discriminator_supcon(self, x_real, y, zdist):
+
+        # x_real: real images
+        # y: labels for x_real
+
+        toggle_grad(self.generator, False)
+        toggle_grad(self.discriminator, True)
+        self.generator.train()
+        self.discriminator.train()
+        self.d_optimizer.zero_grad()
+
+        batch_size = x_real.size(0)
+
+        x_real.requires_grad_()
+
+        # On fake data
+        past_cls = list(range(int(y[0])))
+        # print(f"past_cls: {past_cls}")
+        n_sample_past = max(batch_size // len(past_cls), 2)
+        past_y = [label for label in past_cls for _ in range(n_sample_past)]
+        past_y = torch.Tensor(past_y).to(y)
+        # print(f"past_y: {past_y}")
+        z = zdist.sample((past_y.size(0),))
+        # print(f"z size: {z.size()}")
+        with torch.no_grad():
+            x_fake, _ = self.generator(z, past_y)
+
+        x_fake.requires_grad_()
+
+        images = torch.cat([x_real, x_fake], dim=0)
+        labels = torch.cat([y, past_y], dim=0)
+
+        supcon_loss = self.compute_discriminator_supcon(images, labels)
+
+        # print(f"supcon_loss: {supcon_loss.item()}")
+
+        dloss_supcon = self.supcon_wt * supcon_loss
+        dloss_supcon.backward()
+
+        self.d_optimizer.step()
+
+        toggle_grad(self.discriminator, False)
+
+        # Output
+        return dloss_supcon.item()
 
     def discriminator_trainstep(self, x_real, y, z):
         toggle_grad(self.generator, False)
