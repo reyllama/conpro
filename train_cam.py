@@ -338,7 +338,7 @@ for task_id in task_range:
                 # Alternate between regular train step and MDL step
 
                 if (it+1) % supcon_every == 0:
-                    supcon_loss = trainer.discriminator_supcon(x_real, y, z)
+                    supcon_loss = trainer.discriminator_supcon(x_real, y, zdist)
                     logger.add('losses', 'supcon', supcon_loss, it=it)
 
                 if (it+1) % mdl_every == 0:

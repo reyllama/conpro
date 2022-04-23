@@ -272,7 +272,7 @@ class Trainer(object):
         supcon_loss = self.supcon(feat, labels, target_labels=target_labels)
         return supcon_loss
 
-    def discriminator_supcon(self, x_real, y, z):
+    def discriminator_supcon(self, x_real, y, zdist):
 
         # x_real: real images
         # y: labels for x_real
@@ -292,6 +292,7 @@ class Trainer(object):
         n_sample_past = min(batch_size // len(past_cls), 2)
         past_y = [label for label in past_cls for _ in range(n_sample_past)]
         past_y = torch.Tensor(past_y).to(y)
+        z = zdist.sample((past_y.size(0),))
         with torch.no_grad():
             x_fake, _ = self.generator(z, past_y)
 
