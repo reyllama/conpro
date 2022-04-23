@@ -163,6 +163,7 @@ class SupConLoss(nn.Module):
             0
         )
         mask = mask * logits_mask
+        print(f"mask: {mask}")
 
         # compute log_prob
         exp_logits = torch.exp(logits) * logits_mask
@@ -211,7 +212,7 @@ class Trainer(object):
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.batch_size = batch_size
-        self.supcon = SupConLoss()
+        self.supcon = SupConLoss(temperature=100, base_temperature=100)
 
         # self.mdl_g_wt = mdl_g_wt
         self.gan_type = config['training']['gan_type']
