@@ -371,14 +371,17 @@ for task_id in task_range:
             # (i) Sample if necessary
             if (it % config['training']['sample_every']) == 0:
                 print('Creating samples...')
-                x = evaluator.create_samples(ztest, ytest)                  # TODO: modify evaluator.create_samples() so that the output grid is more rectangular
-                logger.add_imgs(x, 'all', it)
+                # x = evaluator.create_samples(ztest, ytest)
+                # logger.add_imgs(x, 'all', it)
                 for y_inst in range(sample_nlabels):
-                    # print(f"task_id: {task_id}")
-                    # print(f"sample_nlabels: {sample_nlabels}")
-                    # print(f"y_inst: {y_inst}")
-                    x = evaluator.create_samples(ztest, y_inst)
-                    logger.add_imgs(x, '%04d' % y_inst, it)
+                    if y_inst == task_id:
+                        x = evaluator.create_samples(ztest, y_inst)
+                        logger.add_imgs(x, '%04d' % y_inst, it)
+                    # sample past classes more sparsely
+                    else:
+                        if (it % (10 * config['training']['sample_every'])) == 0:
+                            x = evaluator.create_samples(ztest, y_inst)
+                            logger.add_imgs(x, '%04d' % y_inst, it)
 
             # (ii) Compute inception if necessary
             if inception_every > 0 and ((it + 1) % inception_every) == 0:
