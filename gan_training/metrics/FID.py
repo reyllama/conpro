@@ -366,7 +366,7 @@ def FID(imgs, task_id, config=None, device=None, batch_size=32, resize=False, sp
     base_path = config['data']['test_dir']
     inception_path = os.path.join(base_path, f"cl/inception/task_{task_id}.pkl")
 
-    inception = load_patched_inception_v3(3)
+    inception = load_patched_inception_v3()
 
     inception = inception.to(device)
     inception.eval()

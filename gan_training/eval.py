@@ -33,7 +33,7 @@ class Evaluator(object):
             ztest = self.zdist.sample((res, ))
             ytest = torch.ones([res], dtype=torch.long) * task_id
             ytest = ytest.to(ztest.device)
-            samples = self.generator(ztest, ytest)
+            samples, _ = self.generator(ztest, ytest)
             imgs.append(samples.data.cpu().numpy())
 
         # imgs = imgs[:self.inception_nsamples]
