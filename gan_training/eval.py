@@ -26,7 +26,7 @@ class Evaluator(object):
             samples, _ = self.generator(ztest, ytest)
             # samples = [s.data.cpu().numpy() for s in samples]
             # imgs.extend(samples)
-            imgs.append(samples.data.cpu().numpy()) # batched images
+            imgs.append(samples.data) # batched images
 
 
         if res > 0:
@@ -34,7 +34,7 @@ class Evaluator(object):
             ytest = torch.ones([res], dtype=torch.long) * task_id
             ytest = ytest.to(ztest.device)
             samples, _ = self.generator(ztest, ytest)
-            imgs.append(samples.data.cpu().numpy())
+            imgs.append(samples.data)
 
         # imgs = imgs[:self.inception_nsamples]
         score = FID(
