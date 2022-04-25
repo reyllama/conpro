@@ -377,7 +377,7 @@ if __name__ == "__main__":
     transform = transforms.Compose(
         [
             transforms.RandomHorizontalFlip(p=0.5 if args.flip else 0),
-            transforms.Resize(size=args.size),
+            transforms.Resize(size=(args.size, args.size)),
             transforms.ToTensor(),
             transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
         ]
