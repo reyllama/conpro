@@ -358,13 +358,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--n_sample",
         type=int,
-        default=50000,
+        default=5000,
         help="number of samples used for embedding calculation",
     )
     parser.add_argument(
         "--flip", action="store_true", help="apply random flipping to real images"
     )
-    parser.add_argument("path", metavar="PATH", help="path to datset lmdb file")
+    parser.add_argument(
+        "--save_path", type=str, default="../conpro_experiments/data/AnimalFace/cl/inception"
+    )
+    parser.add_argument("path", metavar="PATH", help="path to dataset image folder") # ex: ../conpro_experiments/data/AnimalFace/cl
 
     args = parser.parse_args()
 
@@ -380,21 +383,28 @@ if __name__ == "__main__":
         ]
     )
 
-    dset = ImageFolder(args.path, transform=transform)
-    loader = DataLoader(dset, batch_size=args.batch, num_workers=4)
+    tasks = [f"task_{idx}" for idx in range(1, 8)]
 
-    features = extract_features(loader, inception, device).numpy()
+    for i, name in enumerate(tasks):
+        dset_path = os.path.join(args.path, name)
 
-    features = features[: args.n_sample]
+        dset = ImageFolder(dset_path, transform=transform)
+        loader = DataLoader(dset, batch_size=args.batch, num_workers=4)
 
-    print(f"extracted {features.shape[0]} features")
+        features = extract_features(loader, inception, device).numpy()
 
-    mean = np.mean(features, 0)
-    cov = np.cov(features, rowvar=False)
+        features = features[: args.n_sample]
 
-    name = os.path.splitext(os.path.basename(args.path))[0]
+        print(f"extracted {features.shape[0]} features")
 
-    os.makedirs(args.path, exist_ok=True)
+        mean = np.mean(features, 0)
+        cov = np.cov(features, rowvar=False)
+    
+        # name = os.path.splitext(os.path.basename(args.path))[0]
 
-    with open(f"inception_{name}.pkl", "wb") as f:
-        pickle.dump({"mean": mean, "cov": cov, "size": args.size, "path": args.path}, f)
+        os.makedirs(args.save_path, exist_ok=True)
+
+        target_file = os.path.join(args.save_path, f"task_{i+1}.pkl")
+
+        with open(target_file, "wb") as f:
+            pickle.dump({"mean": mean, "cov": cov, "size": args.size, "path": args.path}, f)

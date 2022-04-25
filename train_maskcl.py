@@ -384,10 +384,10 @@ for task_id in task_range:
             # (ii) Compute inception if necessary
             if inception_every > 0 and ((it + 1) % inception_every) == 0:
                 # inception_mean, inception_std = evaluator.compute_inception_score()
-                fid = evaluator.compute_fid()
+                fid = evaluator.compute_fid(task_id)
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
-                logger.add('FID', 'score', fid, it=it) # TODO: check logger if I have to explicitly create FID/score
+                logger.add('FID', 'score', fid, it=it)
 
             # (iii) Backup if necessary
             if ((it + 1) % backup_every) == 0:
