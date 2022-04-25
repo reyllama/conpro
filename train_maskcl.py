@@ -386,6 +386,7 @@ for task_id in task_range:
                 # inception_mean, inception_std = evaluator.compute_inception_score()
                 print("Calculating FID...")
                 fid = evaluator.compute_fid(task_id)
+                print(f"FID: {fid}")
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
                 logger.add('FID', 'score', fid, it=it)
