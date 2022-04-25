@@ -47,11 +47,11 @@ training:
   monitoring: tensorboard
   sample_every: 500
   sample_nlabels: 30
-  inception_every: 1
+  inception_every: 1000
   save_every: 500
   backup_every: 100000
   restart_every: -1
-  mdl_every: 1000000
+  mdl_every: 2
   supcon_every: 2
   optimizer: adam
   lr_g: 0.0001
@@ -62,13 +62,13 @@ training:
   g_steps: 1
   equalize_lr: false
   model_file: model.pt
-  n_epoch: 5000
+  n_epoch: 3000
   n_epoch_factor: 1
   n_task: 7
   coef_distribution: dirichlet
   mdl_d_wt: 10.0
   mdl_g_wt: 100.0
-  supcon_wt: 1.0
+  supcon_wt: 0.1
 test:
   inception_nsamples: 5000
   batch_size: 8

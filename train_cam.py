@@ -336,11 +336,11 @@ for task_id in task_range:
 
                 # Alternate between regular train step and MDL step
 
-                if (it+1) % supcon_every == 0:
+                if supcon_every > 0 and (it+1) % supcon_every == 0:
                     supcon_loss = trainer.discriminator_supcon(x_real, y, zdist)
                     logger.add('losses', 'supcon', supcon_loss, it=it)
 
-                if (it+1) % mdl_every == 0:
+                if mdl_every > 0 and (it+1) % mdl_every == 0:
                     dloss, mdl_dloss = trainer.discriminator_mdl(x_real, y, z)
                     logger.add('losses', 'discriminator', dloss, it=it)
                     logger.add('losses', 'mdl-d', mdl_dloss, it=it)
@@ -355,7 +355,7 @@ for task_id in task_range:
             if ((it + 1) % g_steps) == 0:
                 z = zdist.sample((batch_size,))
 
-                if (it+1) % mdl_every == 0:
+                if mdl_every > 0 and (it+1) % mdl_every == 0:
                     gloss, mdl_gloss = trainer.generator_mdl(y, z)
                     logger.add('losses', 'generator', gloss, it=it)
                     logger.add('losses', 'mdl-g', mdl_gloss, it=it)

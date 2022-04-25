@@ -46,7 +46,7 @@ training:
   monitoring: tensorboard
   sample_every: 500
   sample_nlabels: 30
-  inception_every: 1
+  inception_every: 1000
   save_every: 500
   backup_every: 100000
   restart_every: -1
@@ -61,7 +61,7 @@ training:
   g_steps: 1
   equalize_lr: false
   model_file: model.pt
-  n_epoch: 5000
+  n_epoch: 3000
   n_epoch_factor: 1
   n_task: 7
   coef_distribution: dirichlet
