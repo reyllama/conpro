@@ -11,7 +11,12 @@ n_shots = 10
 
 for task in tasks:
     task_dir = path.join(source_path, task)
-    sub_dir = os.listdir(task_dir)[0]
+    sub_dir = os.listdir(task_dir)
+    for name in sub_dir:
+        if "Head" in name:
+            sub_dir = name
+            print(sub_dir)
+            break
     target_dir = path.join(task_dir, sub_dir)
     files = os.listdir(target_dir)
     chosen_files = random.sample(files, k=n_shots)
