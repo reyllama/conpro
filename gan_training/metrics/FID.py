@@ -373,8 +373,8 @@ def FID(imgs, task_id, config=None, device=None, batch_size=32, resize=False, sp
 
     features = extract_features(imgs, inception, device)
 
-    sample_mean = np.mean(features, 0)
-    sample_cov = np.cov(features, rowvar=False)
+    sample_mean = np.mean(features.data.cpu().numpy(), 0)
+    sample_cov = np.cov(features.data.cpu().numpy(), rowvar=False)
 
     with open(inception_path, "rb") as f:
         embeds = pickle.load(f)
