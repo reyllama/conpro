@@ -32,7 +32,7 @@ z_dist:
   type: gauss
   dim: 256
 training:
-  misc: ReInit-AF-Supcon
+  misc: mainAF
   d_reinit: true
   use_pretrain: true
   out_dir: ../conpro_experiments/experiments/cl/100/cam
@@ -45,9 +45,9 @@ training:
   model_average_beta: 0.999
   model_average_reinit: false
   monitoring: tensorboard
-  sample_every: 100
+  sample_every: 500
   sample_nlabels: 30
-  inception_every: 1000
+  inception_every: 1
   save_every: 500
   backup_every: 100000
   restart_every: -1
