@@ -28,11 +28,13 @@ class Evaluator(object):
             # imgs.extend(samples)
             imgs.append(samples.data.cpu().numpy()) # batched images
 
-        ztest = self.zdist.sample((res, ))
-        ytest = torch.ones([res], dtype=torch.long) * task_id
-        ytest = ytest.to(ztest.device)
-        samples = self.generator(ztest, ytest)
-        imgs.append(samples.data.cpu().numpy())
+
+        if res > 0:
+            ztest = self.zdist.sample((res, ))
+            ytest = torch.ones([res], dtype=torch.long) * task_id
+            ytest = ytest.to(ztest.device)
+            samples = self.generator(ztest, ytest)
+            imgs.append(samples.data.cpu().numpy())
 
         # imgs = imgs[:self.inception_nsamples]
         score = FID(

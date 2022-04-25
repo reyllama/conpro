@@ -402,6 +402,7 @@ for task_id in task_range:
             # (ii) Compute inception if necessary
             if inception_every > 0 and ((it + 1) % inception_every) == 0:
                 # inception_mean, inception_std = evaluator.compute_inception_score()
+                print("Calculating FID...")
                 fid = evaluator.compute_fid(task_id)
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
