@@ -406,6 +406,7 @@ for task_id in task_range:
                 fid = evaluator.compute_fid(task_id)
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
+                print(f"FID: {fid}")
                 logger.add('FID', 'score', fid, it=it) # TODO: check logger if I have to explicitly create FID/score
 
             # (iii) Backup if necessary
