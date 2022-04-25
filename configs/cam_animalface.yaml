@@ -51,8 +51,8 @@ training:
   save_every: 500
   backup_every: 100000
   restart_every: -1
-  mdl_every: 2
-  supcon_every: 2
+  mdl_every: 0
+  supcon_every: 0
   optimizer: adam
   lr_g: 0.0001
   lr_d: 0.0001
