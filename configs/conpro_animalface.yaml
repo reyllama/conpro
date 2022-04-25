@@ -46,7 +46,7 @@ training:
   monitoring: tensorboard
   sample_every: 500
   sample_nlabels: 30
-  inception_every: 1
+  inception_every: 1000
   save_every: 500
   backup_every: 100000
   restart_every: -1
