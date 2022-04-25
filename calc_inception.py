@@ -330,7 +330,7 @@ def extract_features(loader, inception, device):
 
     feature_list = []
 
-    for img in pbar:
+    for img, _ in pbar:
         img = img.to(device)
         feature = inception(img)[0].view(img.shape[0], -1)
         feature_list.append(feature.to("cpu"))
@@ -399,7 +399,7 @@ if __name__ == "__main__":
 
         mean = np.mean(features, 0)
         cov = np.cov(features, rowvar=False)
-    
+
         # name = os.path.splitext(os.path.basename(args.path))[0]
 
         os.makedirs(args.save_path, exist_ok=True)
