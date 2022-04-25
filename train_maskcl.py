@@ -122,6 +122,8 @@ except:
 # Create models
 generator, discriminator = build_models(config)
 
+print('GENERATOR PARAMETERS: ', sum(x.numel() for x in generator.parameters()))
+
 # Start from pretrained model
 if DATA_FIX and load_dir:
     print("Loading pretrained weights...!")

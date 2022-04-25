@@ -18,13 +18,13 @@ class Generator(nn.Module):
         self.embedding = nn.Embedding(nlabels, embed_size)
         self.fc = nn.Linear(z_dim + embed_size, 16*nf*s0*s0)
 
-        self.resnet_0_0 = Gen_ResnetBlock(16*nf, 16*nf, nlabels-1) # actual number of tasks to train for
-        self.resnet_1_0 = Gen_ResnetBlock(16*nf, 16*nf, nlabels-1)
-        self.resnet_2_0 = Gen_ResnetBlock(16*nf, 8*nf, nlabels-1)
-        self.resnet_3_0 = Gen_ResnetBlock(8*nf, 4*nf, nlabels-1)
-        self.resnet_4_0 = Gen_ResnetBlock(4*nf, 2*nf, nlabels-1)
-        self.resnet_5_0 = Gen_ResnetBlock(2*nf, 1*nf, nlabels-1)
-        self.resnet_6_0 = Gen_ResnetBlock(1*nf, 1*nf, nlabels-1)
+        self.resnet_0_0 = Gen_ResnetBlock(16 * nf, 16 * nf, nlabels - 1, n_groups=128)
+        self.resnet_1_0 = Gen_ResnetBlock(16 * nf, 16 * nf, nlabels - 1, n_groups=128)
+        self.resnet_2_0 = Gen_ResnetBlock(16 * nf, 8 * nf, nlabels - 1, n_groups=64)
+        self.resnet_3_0 = Gen_ResnetBlock(8 * nf, 4 * nf, nlabels - 1, n_groups=64)
+        self.resnet_4_0 = Gen_ResnetBlock(4 * nf, 2 * nf, nlabels - 1, n_groups=32)
+        self.resnet_5_0 = Gen_ResnetBlock(2 * nf, 1 * nf, nlabels - 1, n_groups=8)
+        self.resnet_6_0 = Gen_ResnetBlock(1 * nf, 1 * nf, nlabels - 1, n_groups=8)
         self.conv_img = nn.Conv2d(nf, 3, 7, padding=3)
 
     def forward(self, z, y, return_feats=False):
@@ -162,7 +162,7 @@ class Discriminator(nn.Module):
         return out, feats
 
 class Gen_ResnetBlock(nn.Module):
-    def __init__(self, fin, fout, n_task, fhidden=None, is_bias=True):
+    def __init__(self, fin, fout, n_task, n_groups=64, fhidden=None, is_bias=True):
         super().__init__()
         # Attributes
         self.is_bias = is_bias
@@ -176,13 +176,13 @@ class Gen_ResnetBlock(nn.Module):
 
         # Submodules
         self.conv_0 = nn.Conv2d(self.fin, self.fhidden, 3, stride=1, padding=1)
-        self.cam_gconv_0 = nn.ModuleList([nn.Conv2d(self.fhidden, self.fhidden, 3, stride=1, padding=1, groups=16) for _ in range(n_task)])
-        self.cam_pconv_0 = nn.ModuleList([nn.Conv2d(self.fhidden, self.fhidden, 1, stride=1, padding=0, groups=4) for _ in range(n_task)])
-        self.cam_rconv_0 = nn.ModuleList([nn.Conv2d(self.fin, self.fhidden, 3, stride=1, padding=1, groups=16) for _ in range(n_task)])
+        self.cam_gconv_0 = nn.ModuleList([nn.Conv2d(self.fhidden, self.fhidden, 3, stride=1, padding=1, groups=n_groups) for _ in range(n_task)])
+        self.cam_pconv_0 = nn.ModuleList([nn.Conv2d(self.fhidden, self.fhidden, 1, stride=1, padding=0, groups=n_groups) for _ in range(n_task)])
+        self.cam_rconv_0 = nn.ModuleList([nn.Conv2d(self.fin, self.fhidden, 3, stride=1, padding=1, groups=n_groups) for _ in range(n_task)])
         self.conv_1 = nn.Conv2d(self.fhidden, self.fout, 3, stride=1, padding=1, bias=is_bias)
-        self.cam_gconv_1 = nn.ModuleList([nn.Conv2d(self.fout, self.fout, 3, stride=1, padding=1, groups=16) for _ in range(n_task)])
-        self.cam_pconv_1 = nn.ModuleList([nn.Conv2d(self.fout, self.fout, 1, stride=1, padding=0, groups=4) for _ in range(n_task)])
-        self.cam_rconv_1 = nn.ModuleList([nn.Conv2d(self.fhidden, self.fout, 3, stride=1, padding=1, groups=16) for _ in range(n_task)])
+        self.cam_gconv_1 = nn.ModuleList([nn.Conv2d(self.fout, self.fout, 3, stride=1, padding=1, groups=n_groups) for _ in range(n_task)])
+        self.cam_pconv_1 = nn.ModuleList([nn.Conv2d(self.fout, self.fout, 1, stride=1, padding=0, groups=n_groups) for _ in range(n_task)])
+        self.cam_rconv_1 = nn.ModuleList([nn.Conv2d(self.fhidden, self.fout, 3, stride=1, padding=1, groups=n_groups) for _ in range(n_task)])
         if self.learned_shortcut:
             self.conv_s = nn.Conv2d(self.fin, self.fout, 1, stride=1, padding=0, bias=False)
 

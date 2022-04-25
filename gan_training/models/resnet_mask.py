@@ -128,7 +128,7 @@ class Gen_ResnetBlock(nn.Module):
             self.fhidden = fhidden
 
         self.conv_0 = ConvLayer(self.fin, self.fhidden, kernel_size, instance_norm, channels_last, rank, n_task)
-        self.conv_mix = pointConvLayer(self.fhidden, self.fhidden, 1, 4, instance_norm, channels_last, rank, n_task)
+        self.conv_mix = pointConvLayer(self.fhidden, self.fhidden, 1, 8, instance_norm, channels_last, rank, n_task)
         self.conv_1 = ConvLayer(self.fhidden, self.fout, kernel_size, instance_norm, channels_last, rank, n_task)
 
         if self.learned_shortcut:
@@ -167,8 +167,8 @@ class Generator(nn.Module):
         rank = kwargs['rank']
         n_task = nlabels
 
-        self.resnet_0_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=rank, n_task=n_task)
-        self.resnet_1_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=rank, n_task=n_task)
+        self.resnet_0_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=rank//2, n_task=n_task)
+        self.resnet_1_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=rank//2, n_task=n_task)
         self.resnet_2_0 = Gen_ResnetBlock(16*nf, 8*nf, rank=rank, n_task=n_task)
         self.resnet_3_0 = Gen_ResnetBlock(8*nf, 4*nf, rank=rank, n_task=n_task)
         self.resnet_4_0 = Gen_ResnetBlock(4*nf, 2*nf, rank=rank, n_task=n_task)
