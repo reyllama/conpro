@@ -6,7 +6,6 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Training Log Viewer")
     parser.add_argument("exp_path", type=str, help="path to the experiments directory")
-    parser.add_argument("--cur_iter", action='store_true')
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--end_iter", type=int, default=-1)
     parser.add_argument("--skip", type=int, default=1)
@@ -18,15 +17,7 @@ if __name__ == '__main__':
     with open(log_path, 'rb') as pickle_file:
         content = pickle.load(pickle_file)
 
-    if args.cur_iter:
-        print('='*40)
-        print(f"Current Iteration: {content['losses']['discriminator'][-1][0]}")
-        print(f"Current D-Loss: {content['losses']['discriminator'][-1][1]:.4f}")
-        print(f"Current G-Loss: {content['losses']['generator'][-1][1]:.4f}")
-        print(f"Current Reg-strength: {content['losses']['regularizer'][-1][1]:.4f}")
-        print('='*40)
-
-    else:
+    if args.end_iter > 0:
         its, ds, gs, regs = [], [], [], []
         left, right, step = args.start_iter, args.end_iter, args.skip
         for it in range(left, right+1, step):
@@ -39,3 +30,12 @@ if __name__ == '__main__':
         print(f"dis: {ds}")
         print(f"gen: {gs}")
         # print(f"reg: {regs}")
+
+    else:
+        print('=' * 40)
+        print(f"Iteration: {content['losses']['discriminator'][-1][0]}")
+        print(f"D-Loss: {content['losses']['discriminator'][-1][1]:.4f}")
+        print(f"G-Loss: {content['losses']['generator'][-1][1]:.4f}")
+        print(f"Reg-strength: {content['losses']['regularizer'][-1][1]:.4f}")
+        print(f"FID@{content['FID']['score'][-1][0]}: {content['FID']['score'][-1][1]:.2f}")
+        print('=' * 40)

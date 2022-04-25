@@ -1,17 +1,45 @@
 import torch
-from gan_training.metrics import inception_score
-
+from gan_training.metrics import inception_score, FID
 
 class Evaluator(object):
-    def __init__(self, generator, zdist, ydist, batch_size=64, config=None,
-                 inception_nsamples=60000, device=None):
+    def __init__(self, generator, zdist, ydist, batch_size=64, config=None, device=None):
         self.generator = generator
         self.zdist = zdist
         self.ydist = ydist
-        self.inception_nsamples = inception_nsamples
+        self.inception_nsamples = config['test']['inception_nsamples']
         self.batch_size = batch_size
         self.device = device
         self.is_conpro = ('conpro' in config['generator']['name'])
+        self.config = config
+
+    def compute_fid(self, task_id):
+        self.generator.eval()
+        imgs = []
+        num_its = self.inception_nsamples // self.batch_size
+        res = self.inception_nsamples - ( num_its * self.batch_size )
+        for _ in range(num_its):
+            ztest = self.zdist.sample((self.batch_size,))
+            # ytest = self.ydist.sample((self.batch_size,))
+            ytest = torch.ones([self.batch_size], dtype=torch.long) * task_id
+            ytest = ytest.to(ztest.device)
+
+            samples = self.generator(ztest, ytest)
+            # samples = [s.data.cpu().numpy() for s in samples]
+            # imgs.extend(samples)
+            imgs.append(samples.data.cpu().numpy()) # batched images
+
+        ztest = self.zdist.sample((res, ))
+        ytest = torch.ones([res], dtype=torch.long) * task_id
+        ytest = ytest.to(ztest.device)
+        samples = self.generator(ztest, ytest)
+        imgs.append(samples.data.cpu().numpy())
+
+        # imgs = imgs[:self.inception_nsamples]
+        score = FID(
+            imgs, task_id, self.config, device=self.device, resize=True, splits=10
+        )
+
+        return score
 
     def compute_inception_score(self):
         self.generator.eval()

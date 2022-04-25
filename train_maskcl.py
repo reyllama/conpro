@@ -86,13 +86,11 @@ exp_setting = config['training']['misc'] # For free form code level changes that
 
 # Compose experiment output directory
 out_dir = config['training']['out_dir']
-exp_name = config['generator']['name']+'_'+ str(config['generator']['kwargs']['nfilter']) +'_' \
-            + str(config['generator']['kwargs']['embed_size'])
-exp_name += '_img_' + str(config['data']['img_size']) + "_mdl_" + str(config['training']['mdl_every']) + "_supcon_" + str(config['training']['supcon_every']) +\
-            f"_{str(config['training']['mdl_g_wt'])}_{str(config['training']['mdl_d_wt'])}" + "_dstep_" + str(config['training']['d_steps']) + \
-    "_gstep_" + str(config['training']['g_steps']) + "_rank_" + str(config['generator']['kwargs']['rank'])
+# exp_name = str(config['generator']['name'].split('_')[-1])
+exp_name = "mdl_" + str(config['training']['mdl_every']) + f"_{config['training']['mdl_d_wt']}_{config['training']['mdl_g_wt']}" + \
+            "_supcon_" + str(config['training']['supcon_every']) + f"_{config['training']['supcon_wt']}"
 if exp_setting:
-    exp_name += f"_misc_{exp_setting}"
+    exp_name += f"_{exp_setting}"
 
 out_dir = path.join(out_dir, exp_name)
 checkpoint_dir = path.join(out_dir, 'ckpts')
@@ -385,9 +383,11 @@ for task_id in task_range:
 
             # (ii) Compute inception if necessary
             if inception_every > 0 and ((it + 1) % inception_every) == 0:
-                inception_mean, inception_std = evaluator.compute_inception_score()
-                logger.add('inception_score', 'mean', inception_mean, it=it)
-                logger.add('inception_score', 'stddev', inception_std, it=it)
+                # inception_mean, inception_std = evaluator.compute_inception_score()
+                fid = evaluator.compute_fid()
+                # logger.add('inception_score', 'mean', inception_mean, it=it)
+                # logger.add('inception_score', 'stddev', inception_std, it=it)
+                logger.add('FID', 'score', fid, it=it) # TODO: check logger if I have to explicitly create FID/score
 
             # (iii) Backup if necessary
             if ((it + 1) % backup_every) == 0:

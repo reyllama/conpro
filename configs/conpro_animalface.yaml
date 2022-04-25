@@ -8,7 +8,7 @@ data:
     task_5: ../conpro_experiments/data/AnimalFace/cl/task_5
     task_6: ../conpro_experiments/data/AnimalFace/cl/task_6
     task_7: ../conpro_experiments/data/AnimalFace/cl/task_7
-  test_dir: data/AnimalFace
+  test_dir: ../conpro_experiments/data/AnimalFace
   data_fix: CELEBA
   pretrain_dir: ../conpro_experiments/pretrained_model/
   lsun_categories_train: [bedroom_train]
@@ -46,7 +46,7 @@ training:
   monitoring: tensorboard
   sample_every: 100
   sample_nlabels: 30
-  inception_every: -1
+  inception_every: 1000
   save_every: 500
   backup_every: 100000
   restart_every: -1
@@ -69,6 +69,7 @@ training:
   mdl_g_wt: 100.0
   supcon_wt: 0.1
 test:
+  inception_nsamples: 5000
   batch_size: 8
   sample_size: 36
   sample_nrow: 6
