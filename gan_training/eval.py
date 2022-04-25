@@ -23,7 +23,7 @@ class Evaluator(object):
             ytest = torch.ones([self.batch_size], dtype=torch.long) * task_id
             ytest = ytest.to(ztest.device)
 
-            samples = self.generator(ztest, ytest)
+            samples, _ = self.generator(ztest, ytest)
             # samples = [s.data.cpu().numpy() for s in samples]
             # imgs.extend(samples)
             imgs.append(samples.data.cpu().numpy()) # batched images
