@@ -408,6 +408,7 @@ for task_id in task_range:
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
                 print(f"FID: {fid}")
                 logger.add('FID', 'score', fid, it=it) # TODO: check logger if I have to explicitly create FID/score
+                logger.save_stats('stats.p')
 
             # (iii) Backup if necessary
             if ((it + 1) % backup_every) == 0:
