@@ -32,6 +32,15 @@ def init_mask_weights(model, target, cur_task_id, rel_task_id):
                             else:
                                 getattr(child, name)[cur_task_id] = nn.Parameter(getattr(child, name)[rel_task_id].data)
 
+# re-initialize discriminator after each task (to Celeb-A weights)
+def reinit_discriminator(model, weights):
+    src_params = model.module.state_dict()
+    src_params.update(weights)
+    model.module.load_state_dict(src_params)
+    # clear grads
+    for param in model.module.parameters():
+        param.grad = None
+
 # Clamp parameters in a given range
 def clamp_weights(model, target, min_val, max_val):
     for name, param in model.named_parameters():
@@ -285,11 +294,16 @@ for task_id in task_range:
         # rel_task_id = np.argmin(dists)
         #
         # # initialize model parameters with the most similar previous task
-        if config['training']['use_pretrain']:
-            init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id-1, task_id-2) # TODO: modify with distance learning
-        else:
-            init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, task_id-1) # TODO: modify with distance learning
         # control_gradients(generator, 'task_ResnetBlock', past_tasks, False)
+        if config['training']['d_reinit']:
+            reinit_discriminator(discriminator, dict_D)
+            print("Re-initializing discriminator weights")
+        else:
+            if config['training']['use_pretrain']:
+                init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id - 1, task_id - 2)  # TODO: modify with distance learning
+            else:
+                init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, task_id - 1)  # TODO: modify with distance learning
+
 
         n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
 

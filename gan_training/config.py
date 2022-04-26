@@ -58,7 +58,7 @@ def build_discriminator(config):
     Discriminator = discriminator_dict[config['discriminator']['name']]
 
     # Build models
-    if config['training'].get('use_pretrain', False):  # TODO: verify if this part well functions (dict?)
+    if config['training'].get('use_pretrain', False):
         nlabels = config['data']['nlabels'] + 1
     else:
         nlabels = config['data']['nlabels']
@@ -78,7 +78,7 @@ def build_models(config):
     Discriminator = discriminator_dict[config['discriminator']['name']]
 
     # Build models
-    if config['training'].get('use_pretrain', False): # TODO: verify if this part well functions (dict?)
+    if config['training'].get('use_pretrain', False):
         nlabels = config['data']['nlabels'] + 1
     else:
         nlabels = config['data']['nlabels']

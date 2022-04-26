@@ -32,7 +32,8 @@ z_dist:
   type: gauss
   dim: 256
 training:
-  misc: mainAF
+  misc: mainAF_rank_12_16
+  d_reinit: false
   use_pretrain: true
   out_dir: ../conpro_experiments/experiments/cl/100/mask
   gan_type: standard

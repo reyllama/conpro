@@ -138,6 +138,12 @@ generator, discriminator = build_models(config)
 
 print('GENERATOR PARAMETERS: ', sum(x.numel() for x in generator.parameters()))
 
+# debugging purpose
+if config['training']['use_pretrain']:
+    print("use_pretrain: TRUE")
+else:
+    print("use_pretrain: FALSE")
+
 # Start from pretrained model
 if DATA_FIX and load_dir:
     print("Loading pretrained weights...!")

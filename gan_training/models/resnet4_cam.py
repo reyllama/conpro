@@ -7,7 +7,7 @@ import torch.utils.data.distributed
 import math
 
 class Generator(nn.Module):
-    def __init__(self, z_dim, nlabels, size, embed_size=256, nfilter=64, **kwargs):
+    def __init__(self, z_dim, nlabels, size, embed_size=1, nfilter=64, **kwargs):
         super().__init__()
         s0 = self.s0 = size // 64
         nf = self.nf = nfilter
