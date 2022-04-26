@@ -280,7 +280,7 @@ for task_id in task_range:
     # logger.add_imgs(x, '%04d' % y_inst, -1)
 
     # From second task
-    if task_id > 0:
+    if task_id > 1:
         # print(f"past_tasks: {past_tasks}")
         # TODO
         # z = zdist.sample((batch_size,))

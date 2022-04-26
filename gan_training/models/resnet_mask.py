@@ -167,9 +167,9 @@ class Generator(nn.Module):
         rank = kwargs['rank']
         n_task = nlabels
 
-        self.resnet_0_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=12, n_task=n_task)
-        self.resnet_1_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=12, n_task=n_task)
-        self.resnet_2_0 = Gen_ResnetBlock(16*nf, 8*nf, rank=12, n_task=n_task)
+        self.resnet_0_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=rank//2, n_task=n_task)
+        self.resnet_1_0 = Gen_ResnetBlock(16*nf, 16*nf, rank=rank//2, n_task=n_task)
+        self.resnet_2_0 = Gen_ResnetBlock(16*nf, 8*nf, rank=rank//2, n_task=n_task)
         self.resnet_3_0 = Gen_ResnetBlock(8*nf, 4*nf, rank=16, n_task=n_task)
         self.resnet_4_0 = Gen_ResnetBlock(4*nf, 2*nf, rank=16, n_task=n_task)
         self.resnet_5_0 = Gen_ResnetBlock(2*nf, 1*nf, rank=16, n_task=n_task)
