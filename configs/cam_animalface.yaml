@@ -27,7 +27,7 @@ discriminator:
   kwargs:
     nfilter: 64
     nfilter_max: 256
-    embed_size: 1
+    embed_size: 1m
 z_dist:
   type: gauss
   dim: 256
