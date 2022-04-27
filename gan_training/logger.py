@@ -38,6 +38,15 @@ class Logger(object):
             raise NotImplementedError('Monitoring tool "%s" not supported!'
                                       % monitoring)
 
+    def add_event(self, category, k, event, it):
+        if category not in self.stats:
+            self.stats[category] = {}
+
+        if k not in self.stats[category]:
+            self.stats[category][k] = []
+
+        self.stats[category][k].append((it, event))
+
     def add(self, category, k, v, it):
         if category not in self.stats:
             self.stats[category] = {}

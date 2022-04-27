@@ -19,7 +19,22 @@ if __name__ == '__main__':
         content = pickle.load(pickle_file)
 
     if args.fid:
+
+        its = content['FID']['task'][::-1]
+        it, task = its.pop()
+        cur_best = 10000
         for i, v in content['FID']['score']:
+            cur_best = min(cur_best, v)
+            if i >= it:
+                if it > 0:
+                    print(f"Best FID for the task: {cur_best:.1f}")
+                    print()
+                    cur_best = 10000
+                print(f"--- FID for task_{task} ---")
+                try:
+                    it, task = its.pop()
+                except:
+                    it = 9999999999
             print(f"{i}   |   {v:.1f}")
 
     else:

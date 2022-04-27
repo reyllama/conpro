@@ -136,7 +136,8 @@ except:
 # Create models
 generator, discriminator = build_models(config)
 
-print('GENERATOR PARAMETERS: ', sum(x.numel() for x in generator.parameters()))
+num_params = sum(x.numel() for x in generator.parameters())
+print('GENERATOR PARAMETERS: ', num_params)
 
 # debugging purpose
 if config['training']['use_pretrain']:
@@ -232,12 +233,13 @@ trainer = Trainer(
     config=config
 )
 
-
 # shorthands
 n_epoch = config['training']['n_epoch']
 n_task = config['training']['n_task']
 mdl_every = config['training']['mdl_every']
 supcon_every = config['training']['supcon_every']
+
+logger.add('Generator', 'num_params', num_params, it=0)
 
 # caching previous task indices
 past_tasks = []
@@ -289,6 +291,8 @@ for task_id in task_range:
     # x = evaluator.create_samples(ztest, y_inst)
     # print(x[0].min(), x[0].max())
     # logger.add_imgs(x, '%04d' % y_inst, -1)
+
+    logger.add_event("FID", "task", task_id, it=it)
 
     # From second task
     if task_id > 1:
