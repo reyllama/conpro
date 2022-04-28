@@ -84,6 +84,7 @@ class Discriminator(nn.Module):
         self.embed_size = embed_size
         s0 = self.s0 = size // 64
         nf = self.nf = nfilter
+        self.num_layers = int(math.log(size, 2)) - 1
 
         # Submodules
         self.conv_img = nn.Conv2d(3, 1*nf, 7, padding=3)
