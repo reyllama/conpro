@@ -62,7 +62,7 @@ class Evaluator(object):
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)
         arrz = torch.cat(imgs, dim=0).data.cpu().numpy()
-        numpy.savez_compressed(os.path.join(out_dir, '%08d' % self.iteration), arrz)
+        numpy.savez(os.path.join(out_dir, '%08d' % self.iteration), arrz)
 
         return score
 
