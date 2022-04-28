@@ -138,6 +138,7 @@ class Trainer(object):
         self.d_optimizer = d_optimizer
         self.batch_size = batch_size
         self.supcon = SupConLoss(temperature=0.1, base_temperature=0.1)
+        self.config = config
 
         # self.mdl_g_wt = mdl_g_wt
         self.gan_type = config['training']['gan_type']
@@ -195,7 +196,7 @@ class Trainer(object):
         # print(f"feat_ind: {feat_ind}")
         # print(f"labels: {labels}")
         # TODO: This can be asymmetric as well (target_labels=[int(y[0])])
-        target_labels = list(range(int(labels[0])))
+        target_labels = list(range(self.config['data']['nlabels']))
         # print(f"supcon target labels: {target_labels}")
         supcon_loss = self.supcon(feat, labels, target_labels=target_labels)
         return supcon_loss
@@ -216,7 +217,7 @@ class Trainer(object):
         x_real.requires_grad_()
 
         # On fake data
-        past_cls = list(range(int(y[0])))
+        past_cls = list(range(self.config['data']['nlabels']))
         # print(f"past_cls: {past_cls}")
         n_sample_past = max(batch_size // len(past_cls), 2)
         past_y = [label for label in past_cls for _ in range(n_sample_past)]
