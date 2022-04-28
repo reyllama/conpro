@@ -57,12 +57,13 @@ class Logger(object):
         self.stats[category][k].append((it, v))
 
         k_name = '%s/%s' % (category, k)
-        if self.monitoring == 'telemetry':
-            self.tm.metric_push_async({
-                'metric': k_name, 'value': v, 'it': it
-            })
-        elif self.monitoring == 'tensorboard':
-            self.tb.add_scalar(k_name, v, it)
+        if not isinstance(v, list):
+            if self.monitoring == 'telemetry':
+                self.tm.metric_push_async({
+                    'metric': k_name, 'value': v, 'it': it
+                })
+            elif self.monitoring == 'tensorboard':
+                self.tb.add_scalar(k_name, v, it)
 
     def add_imgs(self, imgs, class_name, it):
         outdir = os.path.join(self.img_dir, class_name)
