@@ -12,6 +12,7 @@ class Generator(nn.Module):
         s0 = self.s0 = size // 64
         nf = self.nf = nfilter
         self.z_dim = z_dim
+        self.num_layers = int(math.log(size, 2)) - 1
 
         # Submodules
         self.embedding = nn.Embedding(nlabels, embed_size)
@@ -27,9 +28,10 @@ class Generator(nn.Module):
         self.conv_img = nn.Conv2d(nf, 3, 7, padding=3)
 
 
-    def forward(self, z, y):
-        assert(z.size(0) == y.size(0))
+    def forward(self, z, y, return_feats=False):
+        assert (z.size(0) == y.size(0))
         batch_size = z.size(0)
+        feats = []
 
         yembed = self.embedding(y)
         yz = torch.cat([z, yembed], dim=1)
@@ -37,28 +39,43 @@ class Generator(nn.Module):
         out = out.view(batch_size, 16*self.nf, self.s0, self.s0)
 
         out = self.resnet_0_0(out)
+        if return_feats:
+            feats.append(out)
 
         out = F.interpolate(out, scale_factor=2)
         out = self.resnet_1_0(out)
+        if return_feats:
+            feats.append(out)
 
         out = F.interpolate(out, scale_factor=2)
         out = self.resnet_2_0(out)
+        if return_feats:
+            feats.append(out)
 
         out = F.interpolate(out, scale_factor=2)
         out = self.resnet_3_0(out)
+        if return_feats:
+            feats.append(out)
 
         out = F.interpolate(out, scale_factor=2)
         out = self.resnet_4_0(out)
+        if return_feats:
+            feats.append(out)
 
         out = F.interpolate(out, scale_factor=2)
         out = self.resnet_5_0(out)
+        if return_feats:
+            feats.append(out)
 
         out = F.interpolate(out, scale_factor=2)
         out = self.resnet_6_0(out)
+        if return_feats:
+            feats.append(out)
+
         out = self.conv_img(actvn(out))
         out = torch.tanh(out)
 
-        return out
+        return out, feats
 
 
 class Discriminator(nn.Module):
@@ -79,29 +96,56 @@ class Discriminator(nn.Module):
         self.resnet_5_0 = ResnetBlock(16*nf, 16*nf)
         self.resnet_6_0 = ResnetBlock(16*nf, 16*nf)
 
+        self.patch_conv = nn.ModuleList(
+            [nn.Conv2d(4 * nf, 1, 3),
+             nn.Conv2d(8 * nf, 1, 3),
+             nn.Conv2d(16 * nf, 1, 3),
+             nn.Conv2d(16 * nf, 1, 3)]
+        )
+
         self.fc = nn.Linear(16*nf*s0*s0, nlabels)
 
-    def forward(self, x, y):
-        assert(x.size(0) == y.size(0))
+    def forward(self, x, y, mdl=False, idx=None):
+        if not mdl:
+            assert(x.size(0) == y.size(0))
         batch_size = x.size(0)
+        feats = []
 
         out = self.conv_img(x)
         out = self.resnet_0_0(out)
+        if mdl:
+            feats.append(out)
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_1_0(out)
+        if mdl:
+            feats.append(out)
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_2_0(out)
+        if mdl:
+            feats.append(out)
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_3_0(out)
+        if mdl:
+            feats.append(out)
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_4_0(out)
+        if mdl:
+            feats.append(out)
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_5_0(out)
+        if mdl:
+            feats.append(out)
+            if idx is None:
+                return None, feats
+            feat = feats[2 + idx]  # 0<=idx<=3
+            feat = feat[:batch_size // 2]  # only those for interpolated images
+            pred = self.patch_conv[idx](feat)
+            return pred, feats
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_6_0(out)
@@ -114,7 +158,7 @@ class Discriminator(nn.Module):
             index = index.cuda()
         out = out[index, y]
 
-        return out
+        return out, feats
 
 
 class ResnetBlock(nn.Module):

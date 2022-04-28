@@ -33,6 +33,7 @@ print(f"is_cuda: {is_cuda}")
 # Short hands
 batch_size = config['training']['batch_size']
 d_steps = config['training']['d_steps']
+g_steps = config['training']['g_steps']
 restart_every = config['training']['restart_every']
 inception_every = config['training']['inception_every']
 save_every = config['training']['save_every']
@@ -80,8 +81,10 @@ train_loader = torch.utils.data.DataLoader(
         num_workers=config['training']['nworkers'],
         shuffle=True, pin_memory=False, sampler=None, drop_last=True
 )
-
-print("CLASS MAPPING: ", train_dataset.class_to_idx)
+try:
+    print("CLASS MAPPING: ", train_dataset.class_to_idx)
+except:
+    pass
 
 # Number of labels
 nlabels = min(nlabels, config['data']['nlabels'])
@@ -176,24 +179,27 @@ if (config['training']['take_model_average']
         and config['training']['model_average_reinit']):
     update_average(generator_test, generator, 0.)
 
-# Learning rate anneling
+# Learning rate annealing
 g_scheduler = build_lr_scheduler(g_optimizer, config, last_epoch=it)
 d_scheduler = build_lr_scheduler(d_optimizer, config, last_epoch=it)
 
 # Trainer
 trainer = Trainer(
     generator, discriminator, g_optimizer, d_optimizer,
-    gan_type=config['training']['gan_type'],
-    reg_type=config['training']['reg_type'],
-    reg_param=config['training']['reg_param']
+    batch_size=batch_size,
+    config=config
 )
+
+# shorthands
+n_epoch = config['training']['n_epoch']
+n_task = config['training']['n_task']
+mdl_every = config['training']['mdl_every']
+supcon_every = config['training']['supcon_every']
 
 logger.add('Generator', 'num_params', num_params, it=0)
 
 # Training loop
 print('Start training...')
-
-n_epoch = config['training']['n_epoch']
 
 for epoch_idx in range(n_epoch):
     # epoch_idx += 1
@@ -216,27 +222,51 @@ for epoch_idx in range(n_epoch):
         y.clamp_(None, nlabels-1)
 
         # Discriminator updates
-        z = zdist.sample((batch_size,))
-        dloss, reg = trainer.discriminator_trainstep(x_real, y, z)
-        logger.add('losses', 'discriminator', dloss, it=it)
-        logger.add('losses', 'regularizer', reg, it=it)
-
-        # Generators updates
         if ((it + 1) % d_steps) == 0:
             z = zdist.sample((batch_size,))
-            gloss = trainer.generator_trainstep(y, z)
-            logger.add('losses', 'generator', gloss, it=it)
+
+            if supcon_every > 0 and (it + 1) % supcon_every == 0:
+                supcon_loss = trainer.discriminator_supcon(x_real, y, zdist)
+                logger.add('losses', 'supcon', supcon_loss, it=it)
+
+            if mdl_every > 0 and (it + 1) % mdl_every == 0:
+                dloss, mdl_dloss = trainer.discriminator_mdl(x_real, y, z)
+                logger.add('losses', 'discriminator', dloss, it=it)
+                logger.add('losses', 'mdl-d', mdl_dloss, it=it)
+
+            # Regular discriminator updates
+            else:
+                dloss, reg = trainer.discriminator_trainstep(x_real, y, z)
+                logger.add('losses', 'discriminator', dloss, it=it)
+                logger.add('losses', 'regularizer', reg, it=it)
+
+        # Generators updates
+        if ((it + 1) % g_steps) == 0:
+            z = zdist.sample((batch_size,))
+
+            if mdl_every > 0 and (it + 1) % mdl_every == 0:
+                gloss, mdl_gloss = trainer.generator_mdl(y, z)
+                logger.add('losses', 'generator', gloss, it=it)
+                logger.add('losses', 'mdl-g', mdl_gloss, it=it)
+            else:
+                gloss = trainer.generator_trainstep(y, z)
+                logger.add('losses', 'generator', gloss, it=it)
 
             if config['training']['take_model_average']:
-                update_average(generator_test, generator,
-                               beta=config['training']['model_average_beta'])
+                update_average(generator_test, generator, beta=config['training']['model_average_beta'])
 
-        # Print stats
+            # Print stats
         g_loss_last = logger.get_last('losses', 'generator')
+        mdl_g_loss_last = logger.get_last('losses', 'mdl-g')
         d_loss_last = logger.get_last('losses', 'discriminator')
+        mdl_d_loss_last = logger.get_last('losses', 'mdl-d')
+        supcon_last = logger.get_last('losses', 'supcon')
         d_reg_last = logger.get_last('losses', 'regularizer')
-        print('[epoch %0d, it %4d] g_loss = %.4f, d_loss = %.4f, reg=%.4f'
-              % (epoch_idx, it, g_loss_last, d_loss_last, d_reg_last))
+        if it % 1 == 0:
+            print(
+                        '[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, supcon = %.3f, reg=%.3f'
+                        % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, supcon_last,
+                           d_reg_last))
 
         # (i) Sample if necessary
         if (it % config['training']['sample_every']) == 0:

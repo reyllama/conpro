@@ -104,7 +104,7 @@ class Discriminator(nn.Module):
              nn.Conv2d(16 * nf, 1, 3)]
         )
 
-        self.fc = nn.Linear(16*nf*s0*s0, nlabels) # (16384, nlabels) for 256x256 images
+        self.fc = nn.Linear(16*nf*s0*s0, nlabels)
 
     def forward(self, x, y, mdl=False, idx=None):
         if not mdl:
