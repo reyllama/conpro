@@ -81,6 +81,8 @@ train_loader = torch.utils.data.DataLoader(
         shuffle=True, pin_memory=False, sampler=None, drop_last=True
 )
 
+print("CLASS MAPPING: ", train_dataset.class_to_idx)
+
 # Number of labels
 nlabels = min(nlabels, config['data']['nlabels'])
 sample_nlabels = min(nlabels, sample_nlabels)
@@ -201,6 +203,9 @@ for epoch_idx in range(n_epoch):
         it += 1
         g_scheduler.step()
         d_scheduler.step()
+
+        if it == 0:
+            print("LABEL example: ", y)
 
         d_lr = d_optimizer.param_groups[0]['lr']
         g_lr = g_optimizer.param_groups[0]['lr']
