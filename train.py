@@ -241,8 +241,8 @@ for epoch_idx in range(n_epoch):
         # (i) Sample if necessary
         if (it % config['training']['sample_every']) == 0:
             print('Creating samples...')
-            x = evaluator.create_samples(ztest, ytest)
-            logger.add_imgs(x, 'all', it)
+            # x = evaluator.create_samples(ztest, ytest)
+            # logger.add_imgs(x, 'all', it)
             for y_inst in range(sample_nlabels):
                 x = evaluator.create_samples(ztest, y_inst)
                 logger.add_imgs(x, '%04d' % y_inst, it)
