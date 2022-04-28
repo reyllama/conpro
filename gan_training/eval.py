@@ -59,7 +59,7 @@ class Evaluator(object):
         if "joint" in self.config['data']['train_dir']:
             task_id += 1
         out_dir = os.path.join(self.out_dir, 'imgs/samples', f"{task_id}")
-        arrz = torch.cat(imgs, dim=0).data.numpy()
+        arrz = torch.cat(imgs, dim=0).data.cpu().numpy()
         numpy.savez_compressed(os.path.join(out_dir, '%08d' % self.iteration), arrz)
 
         return score
