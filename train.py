@@ -5,7 +5,7 @@ import time
 import copy
 import torch
 from torch import nn
-from tqdm import tqdm
+import shutil
 from gan_training import utils
 from gan_training.train import Trainer, update_average
 from gan_training.logger import Logger
