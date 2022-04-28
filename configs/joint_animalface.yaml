@@ -1,0 +1,40 @@
+data:
+  type: image
+  train_dir: ../conpro_experiments/data/AnimalFace/joint
+  test_dir: ../conpro_experiments/data/AnimalFace/joint
+  img_size: 256
+  nlabels: 7
+generator:
+  name: resnet4
+  kwargs:
+    nfilter: 64
+    nfilter_max: 256
+    embed_size: 1
+discriminator:
+  name: resnet4
+  kwargs:
+    nfilter: 64
+    nfilter_max: 256
+    embed_size: 1
+z_dist:
+  type: gauss
+  dim: 256
+training:
+  out_dir: ../conpro_experiments/experiments/joint/AnimalFace
+  gan_type: standard
+  sample_nlabels: 30
+  inception_every: 100000000000
+  batch_size: 8
+  n_epoch: 21000
+test:
+  batch_size: 16
+  sample_size: 36
+  sample_nrow: 6
+  compute_inception: true
+  conditional_samples: true
+interpolations:
+  ys: [15, 157, 307, 321, 442, 483, 484, 525,
+       536, 598, 607, 734, 768, 795, 927, 977,
+       963, 946, 979]
+  nzs: 10
+  nsubsteps: 75

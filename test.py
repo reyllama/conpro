@@ -97,14 +97,37 @@ if config['test']['compute_inception']:
     inception_mean, inception_std = evaluator.compute_inception_score()
     print('Inception score: %.4f +- %.4f' % (inception_mean, inception_std))
 
+
+def create_samples(generator, zdist, y, batch_size, n_samples, img_dir=img_dir):
+    generator.eval()
+    if isinstance(y, int):
+        y = torch.full((batch_size,), y, device=generator.device, dtype=torch.int64)
+    its = n_samples // batch_size
+    res = n_samples - (its * batch_size)
+    tick = 1
+    for _ in range(its):
+        z = zdist.sample((batch_size,))
+        z = z.to(device=y.device)
+
+        with torch.no_grad():
+            x = generator(z, y)
+            if isinstance(x, tuple):
+                x = x[0]
+            for i in range(len(x)):
+                utils.save_images(x[i], path.join(img_dir, str(int(y[0])), '%06d.png' % tick), nrow=1) # TODO; check img_dir
+                tick += 1
+    if res > 0:
+        z = zdist.sample((res,))
+        z = z.to(device=y.device)
+
+        with torch.no_grad():
+            x = generator(z, y)
+            if isinstance(x, tuple):
+                x = x[0]
+            for i in range(len(x)):
+                utils.save_images(x[i], path.join(img_dir, str(int(y[0])), '%06d.png' % tick), nrow=1)  # TODO; check img_dir
+
 # Samples
 print('Creating samples...')
-ztest = zdist.sample((sample_size,))
-x = evaluator.create_samples(ztest)
-utils.save_images(x, path.join(img_all_dir, '%08d.png' % it),
-                  nrow=sample_nrow)
-if config['test']['conditional_samples']:
-    for y_inst in tqdm(range(nlabels)):
-        x = evaluator.create_samples(ztest, y_inst)
-        utils.save_images(x, path.join(img_dir, '%04d.png' % y_inst),
-                          nrow=sample_nrow)
+for y in range(1, 8):
+    create_samples(generator_test, zdist, y, batch_size, 5000)

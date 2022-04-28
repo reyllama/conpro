@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
             for i, v in content['FID']['score']:
                 print(f"{i}   |   {v:.1f}")
-        else:    
+        else:
             its = content['FID']['task'][::-1]
             it, task = its.pop()
             cur_best = 10000
