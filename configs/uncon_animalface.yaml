@@ -1,0 +1,77 @@
+data:
+  type: image
+  train_dir: ../conpro_experiments/data/AnimalFace/uncon
+  test_dir: ../conpro_experiments/data/AnimalFace
+  data_fix: CELEBA
+  pretrain_dir: ../conpro_experiments/pretrained_model/
+  lsun_categories_train: [ bedroom_train ]
+  lsun_categories_test: [ bedroom_test ]
+  img_size: 256
+  nlabels: 7
+generator:
+  name: resnet4
+  kwargs:
+    nfilter: 64
+    nfilter_max: 256
+    embed_size: 1
+discriminator:
+  name: resnet4
+  kwargs:
+    nfilter: 64
+    nfilter_max: 256
+    embed_size: 1
+z_dist:
+  type: gauss
+  dim: 256
+training:
+  misc: base
+  use_pretrain: true
+  out_dir: ../conpro_experiments/experiments/joint/AnimalFace
+  gan_type: standard
+  reg_type: real
+  reg_param: 10.
+  batch_size: 8
+  nworkers: 16
+  take_model_average: true
+  model_average_beta: 0.999
+  model_average_reinit: false
+  monitoring: tensorboard
+  sample_every: 500
+  sample_nlabels: 30
+  inception_every: 1000
+  save_every: 500
+  backup_every: 100000
+  restart_every: -1
+  mdl_every: 2
+  supcon_every: 2
+  optimizer: adam
+  lr_g: 0.0001
+  lr_d: 0.0001
+  lr_anneal: 1.
+  lr_anneal_every: 150000
+  d_steps: 1
+  g_steps: 1
+  equalize_lr: false
+  model_file: model.pt
+  n_epoch: 3000
+  n_epoch_factor: 1
+  n_task: 7
+  coef_distribution: dirichlet
+  mdl_d_wt: 10.0
+  mdl_g_wt: 100.0
+  supcon_wt: 0.1
+test:
+  inception_nsamples: 5000
+  batch_size: 8
+  sample_size: 36
+  sample_nrow: 6
+  use_model_average: true
+  compute_inception: false
+  conditional_samples: false
+  model_file: model.pt
+interpolations:
+  ys: [15, 157, 307, 321, 442, 483, 484, 525,
+       536, 598, 607, 734, 768, 795, 927, 977,
+       963, 946, 979]
+  nzs: 10
+  nsubsteps: 75

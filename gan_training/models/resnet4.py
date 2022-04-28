@@ -4,7 +4,7 @@ from torch.nn import functional as F
 from torch.autograd import Variable
 import torch.utils.data
 import torch.utils.data.distributed
-
+import math
 
 class Generator(nn.Module):
     def __init__(self, z_dim, nlabels, size, embed_size=256, nfilter=64, **kwargs):

@@ -281,14 +281,20 @@ for epoch_idx in range(n_epoch):
         if inception_every > 0 and ((it + 1) % inception_every) == 0:
             # inception_mean, inception_std = evaluator.compute_inception_score()
             print("Calculating FID...")
-            fids = []
-            for cls in range(0, 7):
-                fid = evaluator.compute_fid(cls)
-                fids.append(fid)
-            print(f"FID: {fids}")
+            if "uncon" in config['data']['train_dir']:
+                # TODO: this code is pathetic!
+                # TODO: Hard coded........
+                fid = evaluator.compute_fid(4)
+                logger.add('FID', 'score', fid, it=it)
+            else:
+                fids = []
+                for cls in range(0, 7):
+                    fid = evaluator.compute_fid(cls)
+                    fids.append(fid)
+                print(f"FID: {fids}")
             # logger.add('inception_score', 'mean', inception_mean, it=it)
             # logger.add('inception_score', 'stddev', inception_std, it=it)
-            logger.add('FID', 'score', fids, it=it)
+                logger.add('FID', 'score', fids, it=it)
 
         # (iii) Backup if necessary
         if ((it + 1) % backup_every) == 0:
