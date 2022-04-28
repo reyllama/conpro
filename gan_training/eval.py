@@ -1,8 +1,10 @@
 import torch
+import os
+import numpy
 from gan_training.metrics import inception_score, FID
 
 class Evaluator(object):
-    def __init__(self, generator, zdist, ydist, batch_size=64, config=None, device=None):
+    def __init__(self, generator, zdist, ydist, batch_size=64, config=None, out_dir=None, device=None):
         self.generator = generator
         self.zdist = zdist
         self.ydist = ydist
@@ -11,9 +13,18 @@ class Evaluator(object):
         self.device = device
         self.is_conpro = ('conpro' in config['generator']['name'])
         self.config = config
+        self.out_dir = out_dir
+        self.iteration = 0
+        self.inception_every = config['training']['inception_every']
+        self.is_joint = ("joint" in config['data']['train_dir'])
 
     def compute_fid(self, task_id):
         self.generator.eval()
+        if self.is_joint:
+            if task_id==0:
+                self.iteration += self.inception_every
+        else:
+            self.iteration += self.inception_every
         imgs = []
         num_its = self.inception_nsamples // self.batch_size
         res = self.inception_nsamples - ( num_its * self.batch_size )
@@ -23,7 +34,9 @@ class Evaluator(object):
             ytest = torch.ones([self.batch_size], dtype=torch.long) * task_id
             ytest = ytest.to(ztest.device)
 
-            samples, _ = self.generator(ztest, ytest)
+            samples = self.generator(ztest, ytest)
+            if isinstance(samples, tuple):
+                samples = samples[0]
             # samples = [s.data.cpu().numpy() for s in samples]
             # imgs.extend(samples)
             imgs.append(samples.data) # batched images
@@ -33,13 +46,21 @@ class Evaluator(object):
             ztest = self.zdist.sample((res, ))
             ytest = torch.ones([res], dtype=torch.long) * task_id
             ytest = ytest.to(ztest.device)
-            samples, _ = self.generator(ztest, ytest)
+            samples = self.generator(ztest, ytest)
+            if isinstance(samples, tuple):
+                samples = samples[0]
             imgs.append(samples.data)
 
         # imgs = imgs[:self.inception_nsamples]
         score = FID(
             imgs, task_id, self.config, device=self.device, resize=True, splits=10
         )
+
+        if "joint" in self.config['data']['train_dir']:
+            task_id += 1
+        out_dir = os.path.join(self.out_dir, 'imgs/samples', f"{task_id}")
+        arrz = torch.cat(imgs, dim=0).data.numpy()
+        numpy.savez_compressed(os.path.join(out_dir, '%08d' % self.iteration), arrz)
 
         return score
 

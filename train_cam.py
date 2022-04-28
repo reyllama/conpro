@@ -285,7 +285,7 @@ for task_id in task_range:
 
     # Evaluator
     evaluator = Evaluator(generator_test, zdist, ydist,
-                          batch_size=batch_size, config=config, device=device)
+                          batch_size=batch_size, config=config, out_dir=out_dir, device=device)
 
     # y_inst = 0
     # x = evaluator.create_samples(ztest, y_inst)
@@ -419,7 +419,7 @@ for task_id in task_range:
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
                 print(f"FID: {fid}")
-                logger.add('FID', 'score', fid, it=it) # TODO: check logger if I have to explicitly create FID/score
+                logger.add('FID', 'score', fid, it=it)
                 logger.save_stats('stats.p')
 
             # (iii) Backup if necessary

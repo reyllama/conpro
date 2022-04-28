@@ -374,14 +374,14 @@ if __name__ == "__main__":
     inception = load_patched_inception_v3()
     inception = nn.DataParallel(inception).eval().to(device)
 
-    transform = transforms.Compose(
-        [
-            transforms.RandomHorizontalFlip(p=0.5 if args.flip else 0),
-            transforms.Resize(size=(args.size, args.size)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-        ]
-    )
+    transform = transforms.Compose([
+        transforms.Resize(args.size),
+        transforms.CenterCrop(args.size),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        transforms.Lambda(lambda x: x + 1. / 128 * torch.rand(x.size())),
+    ])
 
     tasks = [f"task_{idx}" for idx in range(1, 8)]
 

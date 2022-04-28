@@ -275,7 +275,7 @@ for task_id in task_range:
 
     # Evaluator
     evaluator = Evaluator(generator_test, zdist, ydist,
-                          batch_size=batch_size, config=config, device=device)
+                          batch_size=batch_size, config=config, out_dir=out_dir, device=device)
 
     # y_inst = 0
     # x = evaluator.create_samples(ztest, y_inst)

@@ -40,9 +40,7 @@ backup_every = config['training']['backup_every']
 sample_nlabels = config['training']['sample_nlabels']
 
 out_dir = config['training']['out_dir']
-exp_name = config['generator']['name']+'_'+ str(config['generator']['kwargs']['nfilter']) +'_' \
-           + str(config['generator']['kwargs']['nfilter_max']) + '_' + str(config['generator']['kwargs']['embed_size'])
-exp_name += '_' + str(config['data']['img_size']) + '_' + str(config['data']['nlabels'])
+exp_name = config['training']['misc']
 out_dir = path.join(out_dir, exp_name)
 checkpoint_dir = path.join(out_dir, 'chkpts')
 
@@ -61,6 +59,13 @@ checkpoint_io = CheckpointIO(
 
 device = torch.device("cuda:0" if is_cuda else "cpu")
 
+# whether to start from a pretrained weights
+try:
+    DATA_FIX = config['data']['data_fix']
+    load_dir = config['data']['pretrain_dir']
+except:
+    DATA_FIX = None
+    load_dir = None
 
 # Dataset
 train_dataset, nlabels = get_dataset(
@@ -82,8 +87,19 @@ sample_nlabels = min(nlabels, sample_nlabels)
 
 # Create models
 generator, discriminator = build_models(config)
-print(generator)
-print(discriminator)
+# print(generator)
+# print(discriminator)
+num_params = sum(x.numel() for x in generator.parameters())
+print('GENERATOR PARAMETERS: ', num_params)
+
+# Start from pretrained model
+if DATA_FIX and load_dir:
+    print("Loading pretrained weights...!")
+    dict_G = torch.load(load_dir + DATA_FIX + 'Pre_generator')
+    generator = utils.attach_partial_params(generator, dict_G)
+    # generator = load_model_norm(generator)
+    dict_D = torch.load(load_dir + DATA_FIX + 'Pre_discriminator')
+    discriminator = utils.attach_partial_params(discriminator, dict_D)
 
 # Put models on gpu if needed
 generator = generator.to(device)
@@ -117,6 +133,7 @@ logger = Logger(
 )
 
 # Distributions
+print(f"** N_LABELS: {nlabels} **")
 ydist = get_ydist(nlabels, device=device)
 zdist = get_zdist(config['z_dist']['type'], config['z_dist']['dim'],
                   device=device)
@@ -137,7 +154,7 @@ else:
 
 # Evaluator
 evaluator = Evaluator(generator_test, zdist, ydist,
-                      batch_size=batch_size, device=device)
+                      batch_size=batch_size, config=config, out_dir=out_dir, device=device)
 
 # Train
 tstart = t0 = time.time()
@@ -168,6 +185,8 @@ trainer = Trainer(
     reg_type=config['training']['reg_type'],
     reg_param=config['training']['reg_param']
 )
+
+logger.add('Generator', 'num_params', num_params, it=0)
 
 # Training loop
 print('Start training...')
@@ -225,9 +244,16 @@ for epoch_idx in range(n_epoch):
 
         # (ii) Compute inception if necessary
         if inception_every > 0 and ((it + 1) % inception_every) == 0:
-            inception_mean, inception_std = evaluator.compute_inception_score()
-            logger.add('inception_score', 'mean', inception_mean, it=it)
-            logger.add('inception_score', 'stddev', inception_std, it=it)
+            # inception_mean, inception_std = evaluator.compute_inception_score()
+            print("Calculating FID...")
+            fids = []
+            for cls in range(0, 7):
+                fid = evaluator.compute_fid(cls)
+                fids.append(fid)
+            print(f"FID: {fids}")
+            # logger.add('inception_score', 'mean', inception_mean, it=it)
+            # logger.add('inception_score', 'stddev', inception_std, it=it)
+            logger.add('FID', 'score', fids, it=it)
 
         # (iii) Backup if necessary
         if ((it + 1) % backup_every) == 0:

@@ -23,7 +23,10 @@ if __name__ == '__main__':
         if not content['FID'].get('task', False):
 
             for i, v in content['FID']['score']:
-                print(f"{i}   |   {v:.1f}")
+                if isinstance(v, list):
+                    print(f"{i}   |   ", [f"{val:.1f}" for val in v])
+                else:
+                    print(f"{i}   |   {v:.1f}")
         else:
             its = content['FID']['task'][::-1]
             it, task = its.pop()

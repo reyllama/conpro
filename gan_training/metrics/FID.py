@@ -364,7 +364,12 @@ def FID(imgs, task_id, config=None, device=None, batch_size=32, resize=False, sp
             splits: number of splits
     """
     base_path = config['data']['test_dir']
-    inception_path = os.path.join(base_path, f"cl/inception/task_{task_id}.pkl")
+    # TODO: this code is pathetic
+    # TODO: How can we align class labels?
+    if "joint" in config['data']['train_dir']:
+        inception_path = os.path.join(base_path, f"cl/inception/task_{task_id+1}.pkl")
+    else:
+        inception_path = os.path.join(base_path, f"cl/inception/task_{task_id}.pkl")
 
     inception = load_patched_inception_v3()
 
