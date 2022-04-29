@@ -311,3 +311,8 @@ for epoch_idx in range(n_epoch):
 
             if (restart_every > 0 and t0 - tstart > restart_every):
                 exit(3)
+
+with open(path.join(out_dir, "final_result.txt"), 'w') as f:
+    for k, v in evaluator.curBest.items():
+        f.write(f"{k}: {v:.2f}")
+        f.write('\n')

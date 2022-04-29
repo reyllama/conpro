@@ -17,6 +17,9 @@ class Evaluator(object):
         self.iteration = 0
         self.inception_every = config['training']['inception_every']
         self.is_joint = ("joint" in config['data']['train_dir'])
+        self.curBest = dict()
+        for i in range(1, config['data']['nlabels']+1):
+            self.curBest[i] = 10000
 
     def compute_fid(self, task_id):
         self.generator.eval()
@@ -58,11 +61,13 @@ class Evaluator(object):
 
         if "joint" in self.config['data']['train_dir']:
             task_id += 1
-        out_dir = os.path.join(self.out_dir, 'imgs/samples', f"{task_id}")
-        if not os.path.isdir(out_dir):
-            os.makedirs(out_dir)
-        arrz = torch.cat(imgs, dim=0).data.cpu().numpy()
-        numpy.savez_compressed(os.path.join(out_dir, '%08d' % self.iteration), arrz)
+        if score < self.curBest[task_id]:
+            out_dir = os.path.join(self.out_dir, 'imgs/samples', f"{task_id}")
+            if not os.path.isdir(out_dir):
+                os.makedirs(out_dir)
+            arrz = torch.cat(imgs, dim=0).data.cpu().numpy()
+            numpy.savez_compressed(os.path.join(out_dir, '%08d' % self.iteration), arrz)
+            self.curBest[task_id] = score
 
         return score
 
