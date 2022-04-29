@@ -250,6 +250,10 @@ if config['training']['use_pretrain']:
 else:
     task_range = range(n_task)
 
+zdist = get_zdist(config['z_dist']['type'], config['z_dist']['dim'], device=device)
+
+evaluator = Evaluator(generator_test, zdist, ydist=None, batch_size=batch_size, config=config, out_dir=out_dir, device=device)
+
 for task_id in task_range:
     print(f"Start training for task {task_id}...!")
     # Dataset
@@ -272,9 +276,8 @@ for task_id in task_range:
     sample_nlabels = nlabels
 
     # Distributions
-    ydist = get_ydist(nlabels, device=device)                               # TODO: Implement so that sample from past tasks -> clear
-    zdist = get_zdist(config['z_dist']['type'], config['z_dist']['dim'],
-                      device=device)
+    # ydist = get_ydist(nlabels, device=device)                               # TODO: Implement so that sample from past tasks -> clear
+
 
     # Save for tests
     ntest = 16
@@ -282,10 +285,6 @@ for task_id in task_range:
     ytest.clamp_(None, nlabels - 1)
     ztest = zdist.sample((ntest,))
     utils.save_images(x_real, path.join(out_dir, f'real_{task_id}.png'))
-
-    # Evaluator
-    evaluator = Evaluator(generator_test, zdist, ydist,
-                          batch_size=batch_size, config=config, out_dir=out_dir, device=device)
 
     # y_inst = 0
     # x = evaluator.create_samples(ztest, y_inst)
@@ -414,7 +413,7 @@ for task_id in task_range:
             # (ii) Compute inception if necessary
             if inception_every > 0 and ((it + 1) % inception_every) == 0:
                 # inception_mean, inception_std = evaluator.compute_inception_score()
-                print("Calculating FID...")
+                print(f"Calculating FID for task {task_id}...")
                 fid = evaluator.compute_fid(task_id)
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)

@@ -4,7 +4,7 @@ import numpy
 from gan_training.metrics import inception_score, FID
 
 class Evaluator(object):
-    def __init__(self, generator, zdist, ydist, batch_size=64, config=None, out_dir=None, device=None):
+    def __init__(self, generator, zdist, ydist=None, batch_size=64, config=None, out_dir=None, device=None):
         self.generator = generator
         self.zdist = zdist
         self.ydist = ydist
@@ -67,7 +67,9 @@ class Evaluator(object):
                 os.makedirs(out_dir)
             arrz = torch.cat(imgs, dim=0).data.cpu().numpy()
             numpy.savez_compressed(os.path.join(out_dir, '%08d' % self.iteration), arrz)
-            self.curBest[task_id] = score
+            # self.curBest[task_id] = score
+
+        self.curBest[task_id] = min(self.curBest[task_id], score)
 
         return score
 
