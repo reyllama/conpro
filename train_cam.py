@@ -440,6 +440,8 @@ for task_id in task_range:
 
     past_tasks.append(task_id)
 
+print(evaluator.curBest)
+
 with open(path.join(out_dir, "final_result.txt"), 'w') as f:
     for k, v in evaluator.curBest.items():
         f.write(f"{k}: {v:.2f}")
