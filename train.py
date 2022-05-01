@@ -41,7 +41,11 @@ backup_every = config['training']['backup_every']
 sample_nlabels = config['training']['sample_nlabels']
 
 out_dir = config['training']['out_dir']
-exp_name = config['training']['misc']
+
+exp_name = "mdl_" + str(config['training']['mdl_every']) + f"_{config['training']['mdl_d_wt']}_{config['training']['mdl_g_wt']}" + \
+            "_supcon_" + str(config['training']['supcon_every']) + f"_{config['training']['supcon_wt']}"
+
+exp_name += config['training']['misc']
 out_dir = path.join(out_dir, exp_name)
 checkpoint_dir = path.join(out_dir, 'chkpts')
 
