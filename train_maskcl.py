@@ -222,7 +222,6 @@ trainer = Trainer(
     config=config
 )
 
-
 # shorthands
 n_epoch = config['training']['n_epoch']
 n_task = config['training']['n_task']
@@ -239,6 +238,10 @@ if config['training']['use_pretrain']:
     task_range = range(1, n_task+1)
 else:
     task_range = range(n_task)
+
+zdist = get_zdist(config['z_dist']['type'], config['z_dist']['dim'], device=device)
+
+evaluator = Evaluator(generator_test, zdist, ydist=None, batch_size=batch_size, config=config, out_dir=out_dir, device=device)
 
 for task_id in task_range:
     print(f"Start training for task {task_id}...!")
@@ -262,9 +265,7 @@ for task_id in task_range:
     sample_nlabels = nlabels
 
     # Distributions
-    ydist = get_ydist(nlabels, device=device)                               # TODO: Implement so that sample from past tasks -> clear
-    zdist = get_zdist(config['z_dist']['type'], config['z_dist']['dim'],
-                      device=device)
+    # ydist = get_ydist(nlabels, device=device)                               # TODO: Implement so that sample from past tasks -> clear
 
     # Save for tests
     ntest = 16
@@ -272,10 +273,6 @@ for task_id in task_range:
     ytest.clamp_(None, nlabels - 1)
     ztest = zdist.sample((ntest,))
     utils.save_images(x_real, path.join(out_dir, f'real_{task_id}.png'))
-
-    # Evaluator
-    evaluator = Evaluator(generator_test, zdist, ydist,
-                          batch_size=batch_size, config=config, out_dir=out_dir, device=device)
 
     # y_inst = 0
     # x = evaluator.create_samples(ztest, y_inst)

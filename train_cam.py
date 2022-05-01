@@ -70,7 +70,6 @@ def control_gradients(model, target, idx=[], requires_grad=False):
                     except:
                         pass
 
-
 # Arguments
 parser = argparse.ArgumentParser(
     description='Train a GAN with different regularization strategies.'
@@ -138,12 +137,6 @@ generator, discriminator = build_models(config)
 
 num_params = sum(x.numel() for x in generator.parameters())
 print('GENERATOR PARAMETERS: ', num_params)
-
-# debugging purpose
-if config['training']['use_pretrain']:
-    print("use_pretrain: TRUE")
-else:
-    print("use_pretrain: FALSE")
 
 # Start from pretrained model
 if DATA_FIX and load_dir:
@@ -278,7 +271,6 @@ for task_id in task_range:
     # Distributions
     # ydist = get_ydist(nlabels, device=device)                               # TODO: Implement so that sample from past tasks -> clear
 
-
     # Save for tests
     ntest = 16
     x_real, ytest = utils.get_nsamples(train_loader, ntest)
@@ -406,20 +398,19 @@ for task_id in task_range:
                         logger.add_imgs(x, '%04d' % y_inst, it)
                     # sample past classes more sparsely
                     else:
-                        if (it % (10*config['training']['sample_every'])) == 0:
+                        if (it % (10 * config['training']['sample_every'])) == 0:
                             x = evaluator.create_samples(ztest, y_inst)
                             logger.add_imgs(x, '%04d' % y_inst, it)
 
             # (ii) Compute inception if necessary
             if inception_every > 0 and ((it + 1) % inception_every) == 0:
                 # inception_mean, inception_std = evaluator.compute_inception_score()
-                print(f"Calculating FID for task {task_id}...")
+                print("Calculating FID...")
                 fid = evaluator.compute_fid(task_id)
                 # logger.add('inception_score', 'mean', inception_mean, it=it)
                 # logger.add('inception_score', 'stddev', inception_std, it=it)
                 print(f"FID: {fid}")
                 logger.add('FID', 'score', fid, it=it)
-                logger.save_stats('stats.p')
 
             # (iii) Backup if necessary
             if ((it + 1) % backup_every) == 0:
