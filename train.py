@@ -288,7 +288,7 @@ for epoch_idx in range(n_epoch):
             if "uncon" in config['data']['train_dir']:
                 # TODO: this code is pathetic!
                 # TODO: Hard coded........
-                fid = evaluator.compute_fid(4)
+                fid = evaluator.compute_fid(3)
                 logger.add('FID', 'score', fid, it=it)
             else:
                 fids = []
