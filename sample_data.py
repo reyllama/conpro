@@ -5,7 +5,7 @@ import random
 tasks = [f"task_{idx}" for idx in range(1, 8)]
 
 source_path = "/workspace/conpro_experiments/data/AnimalFace/cl"
-target_path = "/workspace/conpro_experiments/data/AnimalFace/cl-10"
+target_path = "/workspace/conpro_experiments/data/AnimalFace/cl10"
 
 n_shots = 10
 
