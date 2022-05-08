@@ -234,10 +234,12 @@ logger.add('Generator', 'num_params', num_params, it=0)
 past_tasks = []
 
 # Task index depends on the pretraining configuration
-if config['training']['use_pretrain']:
-    task_range = range(1, n_task+1)
-else:
-    task_range = range(n_task)
+# if config['training']['use_pretrain']:
+#     task_range = range(1, n_task+1)
+# else:
+#     task_range = range(n_task)
+
+task_range = range(1, n_task+1)
 
 zdist = get_zdist(config['z_dist']['type'], config['z_dist']['dim'], device=device)
 
