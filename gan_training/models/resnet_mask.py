@@ -322,7 +322,7 @@ class Discriminator(nn.Module):
 
             rep_feat = rep_feats[i].unsqueeze(0)
             cur_feat = cur_feats[i].unsqueeze(1)
-            domain_dists += [torch.norm(rep_feat, cur_feat).item()]
+            domain_dists += [torch.norm(rep_feat-cur_feat).item()]
 
             print(rep_feats.size(), cur_feats.size())
 
