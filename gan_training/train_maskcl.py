@@ -223,6 +223,7 @@ class Trainer(object):
         self.mdl_d_wt = config['training']['mdl_d_wt']
         self.mdl_g_wt = config['training']['mdl_g_wt']
         self.supcon_wt = config['training']['supcon_wt']
+        self.use_pretrain = config['training']['use_pretraining']
 
         # Todo: needs to be altered
         self.is_conpro = ('conpro' in config['generator']['name']) or ('mask' in config['generator']['name'])
@@ -237,10 +238,19 @@ class Trainer(object):
 
     def generator_trainstep(self, y, z):
         assert(y.size(0) == z.size(0))
-        if y[0]>0 and self.is_conpro: # From second task in continual learning setting
+
+        if self.use_pretrain:
             toggle_grad(self.generator, True, partial_update=True, task_id=y[0])
-        else: # First task in CL setting
-            toggle_grad(self.generator, True)
+        else:
+            if y[0]>1:
+                toggle_grad(self.generator, True, partial_update=True, task_id=y[0])
+            else:
+                toggle_grad(self.generator, True)
+
+        # if y[0]>0 and self.is_conpro: # From second task in continual learning setting
+        #     toggle_grad(self.generator, True, partial_update=True, task_id=y[0])
+        # else: # First task in CL setting
+        #     toggle_grad(self.generator, True)
         toggle_grad(self.discriminator, False)
         self.generator.train()
         self.discriminator.train()
@@ -537,10 +547,13 @@ class Trainer(object):
 
     def generator_mdl(self, y, z):
         assert (y.size(0) == z.size(0))
-        if y[0]>0 and self.is_conpro: # From second task in continual learning setting
+        if self.use_pretrain:
             toggle_grad(self.generator, True, partial_update=True, task_id=y[0])
-        else: # First task
-            toggle_grad(self.generator, True)
+        else:
+            if y[0] > 1:
+                toggle_grad(self.generator, True, partial_update=True, task_id=y[0])
+            else:
+                toggle_grad(self.generator, True)
         toggle_grad(self.discriminator, False)
         self.generator.train()
         self.discriminator.train()

@@ -256,7 +256,7 @@ class Discriminator(nn.Module):
         self.fc = nn.Linear(16*nf*s0*s0, nlabels) # (16384, nlabels) for 256x256 images
 
     def forward(self, x, y, mdl=False, idx=None):
-        if not mdl:
+        if not mdl and y is not None:
             assert(x.size(0) == y.size(0))
         batch_size = x.size(0)
         feats = []
@@ -309,6 +309,19 @@ class Discriminator(nn.Module):
         out = out[index, y]
 
         return out, feats
+
+    def evaluate_distance(self, replay, cur):
+
+        # First output discriminator intermediate features
+        rep_feats = self.forward(replay, None, mdl=False, idx=None) # list: 6 x (N, feat_dim, feat_dim)
+        cur_feats = self.forward(cur, None, mdl=False, idx=None) # list: 6 x (N, feat_dim, feat_dim)
+
+        rep_feats = torch.cat(rep_feats, dim=0).unsqueeze(0)
+        cur_feats = torch.cat(cur_feats, dim=0).unsqueeze(1)
+
+        domain_distance = torch.norm(rep_feats-cur_feats)
+
+        return domain_distance
 
 def actvn(x):
     out = F.leaky_relu(x, 2e-1)

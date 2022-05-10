@@ -30,7 +30,7 @@ def init_mask_weights(model, target, cur_task_id, rel_task_id):
                             if rel_task_id == -1:
                                 pass
                             else:
-                                getattr(child, name)[cur_task_id] = nn.Parameter(getattr(child, name)[rel_task_id].data)
+                                getattr(child, name)[cur_task_id-1] = nn.Parameter(getattr(child, name)[rel_task_id-1].data)
 
 # re-initialize discriminator after each task (to Celeb-A weights)
 def reinit_discriminator(model, weights):
@@ -288,25 +288,30 @@ for task_id in task_range:
         # print(f"past_tasks: {past_tasks}")
         # TODO
         # z = zdist.sample((batch_size,))
-        # real_cur, _ = next(train_loader)
-        # dists = np.zeros(task_id)
-        # for prev_task_id in range(task_id):
-        #     y0 = torch.ones([batch_size], dtype=torch.long) * prev_task_id
-        #     gen_replay, _ = generator(z, y0)
-        #     cross_dist = discriminator.evaluate_distance(gen_replay, real_cur) # TODO: implement evaluate_distance function in our discriminator
-        #     dists[prev_task_id] = cross_dist.item()
-        # rel_task_id = np.argmin(dists)
-        #
+
+        ####
+        real_cur, _ = next(train_loader)
+        dists = np.zeros(task_id-1)
+        for prev_task_id in range(1, task_id):
+            y0 = torch.ones([batch_size], dtype=torch.long) * prev_task_id
+            gen_replay, _ = generator(z, y0)
+            cross_dist = discriminator.evaluate_distance(gen_replay, real_cur) # TODO: implement evaluate_distance function in our discriminator
+            dists[prev_task_id-1] = cross_dist.item()
+        rel_task_id = np.argmin(dists)
+        ####
+
         # # initialize model parameters with the most similar previous task
         # control_gradients(generator, 'task_ResnetBlock', past_tasks, False)
         if config['training']['d_reinit']:
             reinit_discriminator(discriminator, dict_D)
             print("Re-initializing discriminator weights")
-        else:
-            if config['training']['use_pretrain']:
-                init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id - 1, task_id - 2)  # TODO: modify with distance learning
-            else:
-                init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, task_id - 1)  # TODO: modify with distance learning
+        init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, rel_task_id)
+
+        # else:
+        #     if config['training']['use_pretrain']:
+        #         init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id - 1, task_id - 2)  # TODO: modify with distance learning
+        #     else:
+        #         init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, task_id - 1)  # TODO: modify with distance learning
 
 
         n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
