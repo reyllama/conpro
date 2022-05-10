@@ -8,12 +8,14 @@ import math
 
 def modulated_conv(x, y, weight, bias, weight_mask_left, weight_mask_right, bias_mask, padding):
     # base_filters = weight
-    print(weight_mask_left.size())
-    print(weight_mask_right.size())
+    # print(weight_mask_left.size())
+    # print(weight_mask_right.size())
     out_channels, in_channels, kernel_size = weight.size(0), weight.size(1), weight.size(2)
     task_id = y[0]-1
-    print(task_id)
+    # print(task_id)
     if task_id >= 0:
+        if task_id == 6:
+            print(f"{task_id}, pass")
         left_matrix = weight_mask_left[task_id]
         right_matrix = weight_mask_right[task_id]
         assert left_matrix.dim()==2
