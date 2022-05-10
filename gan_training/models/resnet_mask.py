@@ -316,12 +316,23 @@ class Discriminator(nn.Module):
         _, rep_feats = self.forward(replay, None, mdl=True, idx=None) # list: 6 x (N, feat_dim, feat_dim)
         _, cur_feats = self.forward(cur, None, mdl=True, idx=None) # list: 6 x (N, feat_dim, feat_dim)
 
-        rep_feats = torch.stack(rep_feats, dim=0).unsqueeze(0)
-        cur_feats = torch.stack(cur_feats, dim=0).unsqueeze(1)
+        domain_dists = []
 
-        print(rep_feats.size(), cur_feats.size())
+        for i in range(len(rep_feats)):
 
-        domain_distance = torch.norm(rep_feats-cur_feats)
+            rep_feat = rep_feats[i].unsqueeze(0)
+            cur_feat = cur_feats[i].unsqueeze(1)
+            domain_dists += [torch.norm(rep_feat, cur_feat).item()]
+
+            print(rep_feats.size(), cur_feats.size())
+
+
+        # rep_feats = torch.stack(rep_feats, dim=0).unsqueeze(0)
+        # cur_feats = torch.stack(cur_feats, dim=0).unsqueeze(1)
+
+        domain_distance = sum(domain_dists) / len(domain_dists)
+
+        print(f"domain_distances: {domain_distance}")
 
         return domain_distance
 
