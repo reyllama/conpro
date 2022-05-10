@@ -290,7 +290,7 @@ for task_id in task_range:
         # z = zdist.sample((batch_size,))
 
         ####
-        real_cur, _ = next(train_loader)
+        real_cur, _ = next(iter(train_loader))
         dists = np.zeros(task_id-1)
         for prev_task_id in range(1, task_id):
             y0 = torch.ones([batch_size], dtype=torch.long) * prev_task_id
@@ -306,6 +306,7 @@ for task_id in task_range:
             reinit_discriminator(discriminator, dict_D)
             print("Re-initializing discriminator weights")
         init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, rel_task_id)
+        print(f"Initialize weights for task {task_id} with task {rel_task_id} parameters")
 
         # else:
         #     if config['training']['use_pretrain']:
