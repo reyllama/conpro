@@ -313,8 +313,8 @@ class Discriminator(nn.Module):
     def evaluate_distance(self, replay, cur):
 
         # First output discriminator intermediate features
-        rep_feats = self.forward(replay, None, mdl=False, idx=None) # list: 6 x (N, feat_dim, feat_dim)
-        cur_feats = self.forward(cur, None, mdl=False, idx=None) # list: 6 x (N, feat_dim, feat_dim)
+        rep_feats = self.forward(replay, None, mdl=True, idx=None) # list: 6 x (N, feat_dim, feat_dim)
+        cur_feats = self.forward(cur, None, mdl=True, idx=None) # list: 6 x (N, feat_dim, feat_dim)
 
         rep_feats = torch.cat(rep_feats, dim=0).unsqueeze(0)
         cur_feats = torch.cat(cur_feats, dim=0).unsqueeze(1)
