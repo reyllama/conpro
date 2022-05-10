@@ -295,6 +295,7 @@ for task_id in task_range:
         for prev_task_id in range(1, task_id):
             y0 = torch.ones([batch_size], dtype=torch.long) * prev_task_id
             gen_replay, _ = generator(z, y0)
+            real_cur = real_cur.to(device=gen_replay.device)
             cross_dist = discriminator.module.evaluate_distance(gen_replay, real_cur) # TODO: implement evaluate_distance function in our discriminator
             dists[prev_task_id-1] = cross_dist.item()
         rel_task_id = np.argmin(dists)
