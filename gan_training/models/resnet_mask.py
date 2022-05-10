@@ -40,8 +40,8 @@ class pointConvLayer(nn.Module):
         self.groups = groups
         memory_format = torch.channels_last if channels_last else torch.contiguous_format
         # initialization
-        weights = torch.cat([nn.Conv2d(in_channels, out_channels, kernel_size, groups=groups).weight.data.unsqueeze(0) for _ in range(n_task-1)], dim=0)
-        biases = torch.cat([nn.Conv2d(in_channels, out_channels, kernel_size, groups=groups).bias.data.unsqueeze(0) for _ in range(n_task-1)], dim=0)
+        weights = torch.cat([nn.Conv2d(in_channels, out_channels, kernel_size, groups=groups).weight.data.unsqueeze(0) for _ in range(n_task)], dim=0)
+        biases = torch.cat([nn.Conv2d(in_channels, out_channels, kernel_size, groups=groups).bias.data.unsqueeze(0) for _ in range(n_task)], dim=0)
         self.weight_mask = nn.Parameter(weights)
         self.bias_mask = nn.Parameter(biases)
         self.n_task = n_task
