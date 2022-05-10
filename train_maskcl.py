@@ -356,6 +356,10 @@ for task_id in task_range:
 
                 # Regular discriminator updates
                 else:
+                    ###
+                    if task_id==7:
+                        print(y)
+                    ###
                     dloss, reg = trainer.discriminator_trainstep(x_real, y, z)
                     logger.add('losses', 'discriminator', dloss, it=it)
                     logger.add('losses', 'regularizer', reg, it=it)
