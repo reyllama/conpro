@@ -280,7 +280,7 @@ class Trainer(object):
 
         """
         _, feats = self.discriminator(images, labels, mdl=True, idx=None) # feats = [batch_feat_0, ... , batch_feat_k]
-        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1) # exclusive of the upper bound (1,2,3,4,5)
+        feat_ind = np.random.randint(3, self.discriminator.module.num_layers - 1) # exclusive of the upper bound (1,2,3,4,5)
         feat = feats[feat_ind]
         batch_size = feat.size(0) # this is not actually batch_size, but concatenation with replay samples
         feat = feat.view(batch_size, -1).unsqueeze(1) # (N, 1, feat_dim)
@@ -445,7 +445,7 @@ class Trainer(object):
         dist_source = sfm(alpha)
         input_image = torch.cat([interp_image, fake_image], dim=0)
 
-        feat_ind = np.random.randint(0, self.discriminator.module.num_layers - 3)
+        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 3)
 
         interp_pred, feats = self.discriminator(input_image, y, mdl=True, idx=feat_ind)
         # interp_feat, fake_feat = feats[:batch_size], feats[batch_size:]
