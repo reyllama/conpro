@@ -306,7 +306,9 @@ class Discriminator(nn.Module):
         index = Variable(torch.LongTensor(range(out.size(0))))
         if y.is_cuda:
             index = index.cuda()
+        print(y-1)
         out = out[index, y-1]
+        print('pass')
 
         return out, feats
 
