@@ -309,6 +309,8 @@ for task_id in task_range:
         init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id, rel_task_id)
         print(f"Initialize weights for task {task_id} with task {rel_task_id} parameters")
 
+        logger.add_event("DAI", "task_id", rel_task_id, it=it)
+
         # else:
         #     if config['training']['use_pretrain']:
         #         init_mask_weights(generator.module, 'Gen_ResnetBlock', task_id - 1, task_id - 2)  # TODO: modify with distance learning
