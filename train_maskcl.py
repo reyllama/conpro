@@ -297,8 +297,8 @@ for task_id in task_range:
             gen_replay, _ = generator(z, y0)
             real_cur = real_cur.to(device=gen_replay.device)
             cross_dist = discriminator.module.evaluate_distance(gen_replay, real_cur) # TODO: implement evaluate_distance function in our discriminator
-            dists[prev_task_id-1] = cross_dist.item()
-        rel_task_id = np.argmin(dists)
+            dists[prev_task_id-1] = cross_dist
+        rel_task_id = np.argmin(dists) + 1
         ####
 
         # # initialize model parameters with the most similar previous task

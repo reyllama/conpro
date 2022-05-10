@@ -324,7 +324,7 @@ class Discriminator(nn.Module):
             cur_feat = cur_feats[i].unsqueeze(1)
             domain_dists += [torch.norm(rep_feat-cur_feat).item()]
 
-            print(rep_feat.size(), cur_feat.size())
+            # print(rep_feat.size(), cur_feat.size())
 
 
         # rep_feats = torch.stack(rep_feats, dim=0).unsqueeze(0)
@@ -332,7 +332,7 @@ class Discriminator(nn.Module):
 
         domain_distance = sum(domain_dists) / len(domain_dists)
 
-        print(f"domain_distances: {domain_distance}")
+        # print(f"domain_distances: {domain_distance}")
 
         return domain_distance
 
