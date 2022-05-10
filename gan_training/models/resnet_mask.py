@@ -166,7 +166,7 @@ class Generator(nn.Module):
         self.num_layers = int(math.log(size, 2)) - 1
 
         # Submodules
-        self.embedding = nn.Embedding(nlabels, embed_size)
+        self.embedding = nn.Embedding(nlabels+1, embed_size)
         self.fc = nn.Linear(z_dim + embed_size, 16*nf*s0*s0)
 
         rank = kwargs['rank']
