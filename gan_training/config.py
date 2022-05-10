@@ -77,15 +77,17 @@ def build_models(config):
     Generator = generator_dict[config['generator']['name']]
     Discriminator = discriminator_dict[config['discriminator']['name']]
 
+    nlabels = config['data']['nlabels']
+
     # Build models
-    if config['training'].get('use_pretrain', False):
-        nlabels = config['data']['nlabels'] + 1
-    else:
-        nlabels = config['data']['nlabels']
+    # if config['training'].get('use_pretrain', False):
+    #     nlabels = config['data']['nlabels'] + 1
+    # else:
+    #     nlabels = config['data']['nlabels']
 
     generator = Generator(
         z_dim=config['z_dist']['dim'],
-        nlabels=nlabels, # Adapt to the setting (whether use pretrained base models)
+        nlabels=nlabels,
         size=config['data']['img_size'],
         **config['generator']['kwargs']
     )

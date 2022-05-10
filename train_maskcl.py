@@ -135,7 +135,7 @@ num_params = sum(x.numel() for x in generator.parameters())
 print('GENERATOR PARAMETERS: ', num_params)
 
 # Start from pretrained model
-if DATA_FIX and load_dir:
+if config['training']['use_pretrain'] and DATA_FIX and load_dir:
     print("Loading pretrained weights...!")
     dict_G = torch.load(load_dir + DATA_FIX + 'Pre_generator')
     generator = utils.attach_partial_params(generator, dict_G)

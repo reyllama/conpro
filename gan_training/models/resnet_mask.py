@@ -65,9 +65,9 @@ class ConvLayer(nn.Module):
 
         self.n_task = n_task
 
-        self.weight_mask_left = nn.Parameter(torch.randn([self.n_task-1, out_channels*kernel_size, rank]) / math.sqrt(out_channels*kernel_size))
-        self.weight_mask_right = nn.Parameter(torch.randn([self.n_task-1, in_channels*kernel_size, rank]) / math.sqrt(in_channels*kernel_size))
-        self.bias_mask = nn.Parameter(torch.zeros([self.n_task-1, out_channels]))
+        self.weight_mask_left = nn.Parameter(torch.randn([self.n_task, out_channels*kernel_size, rank]) / math.sqrt(out_channels*kernel_size))
+        self.weight_mask_right = nn.Parameter(torch.randn([self.n_task, in_channels*kernel_size, rank]) / math.sqrt(in_channels*kernel_size))
+        self.bias_mask = nn.Parameter(torch.zeros([self.n_task, out_channels]))
 
         self.instance_norm = instance_norm
 
@@ -306,7 +306,7 @@ class Discriminator(nn.Module):
         index = Variable(torch.LongTensor(range(out.size(0))))
         if y.is_cuda:
             index = index.cuda()
-        out = out[index, y]
+        out = out[index, y-1]
 
         return out, feats
 

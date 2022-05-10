@@ -223,7 +223,7 @@ class Trainer(object):
         self.mdl_d_wt = config['training']['mdl_d_wt']
         self.mdl_g_wt = config['training']['mdl_g_wt']
         self.supcon_wt = config['training']['supcon_wt']
-        self.use_pretrain = config['training']['use_pretraining']
+        self.use_pretrain = config['training']['use_pretrain']
 
         # Todo: needs to be altered
         self.is_conpro = ('conpro' in config['generator']['name']) or ('mask' in config['generator']['name'])
