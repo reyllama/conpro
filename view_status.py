@@ -10,6 +10,7 @@ if __name__ == '__main__':
     parser.add_argument("--end_iter", type=int, default=-1)
     parser.add_argument("--skip", type=int, default=1)
     parser.add_argument("--fid", action='store_true')
+    parser.add_argument("--dai", action='store_true')
 
     args = parser.parse_args()
     base_path = "/workspace/conpro_experiments/experiments"
@@ -44,6 +45,10 @@ if __name__ == '__main__':
                     except:
                         it = 9999999999
                 print(f"{i}   |   {v:.1f}")
+
+    elif args.dai:
+        for i, v in content['DAI']['task_id']:
+            print(i, v)
 
     else:
 
