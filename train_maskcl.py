@@ -321,7 +321,10 @@ for task_id in task_range:
 
         n_epoch = int(config['training']['n_epoch'] * config['training']['n_epoch_factor']) # For incorporated base training
 
-    for epoch_idx in range(n_epoch):
+    pbar = range(n_epoch)
+    pbar = tqdm(pbar, initial=0, dynamic_ncols=True, smoothing=0.01)
+
+    for epoch_idx in pbar:
         # epoch_idx += 1
         # print('Start epoch %d...' % epoch_idx)
 
@@ -385,9 +388,15 @@ for task_id in task_range:
             mdl_d_loss_last = logger.get_last('losses', 'mdl-d')
             supcon_last = logger.get_last('losses', 'supcon')
             d_reg_last = logger.get_last('losses', 'regularizer')
-            if it % 1 == 0:
-                print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, supcon = %.3f, reg=%.3f'
-                    % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, supcon_last, d_reg_last))
+            # if it % 1 == 0:
+            #     print('[epoch %0d, it %4d] g_loss = %.3f, d_loss = %.3f, mdl_g = %.3f, mdl_d = %.3f, supcon = %.3f, reg=%.3f'
+            #         % (epoch_idx, it, g_loss_last, d_loss_last, mdl_g_loss_last, mdl_d_loss_last, supcon_last, d_reg_last))
+            pbar.set_description(
+                (
+                    f"d: {d_loss_last:.3f}; mdl_d: {mdl_d_loss_last:.3f}; supcon: {supcon_last:.3f}; "
+                    f"g: {g_loss_last:.3f}; mdl_g: {mdl_g_loss_last:.3f}; d_reg: {d_reg_last:.3f}"
+                )
+            )
 
             # clamp_weights(generator, 'mixing', 0.2, 0.8)
             # print(getattr(generator.module, 'mixing_0_pls'))
