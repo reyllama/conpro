@@ -467,7 +467,7 @@ class Trainer(object):
         # dist_target = torch.zeros([batch_size, batch_size]).cuda()
 
         interp_feat = interp_feat.view(batch_size, -1).unsqueeze(2)
-        fake_feat = fake_feat.view(batch_size, -1).unsqueeze(0)
+        fake_feat = fake_feat.view(-1, batch_size).unsqueeze(0)
 
         dist_target = sim(interp_feat, fake_feat)
         dist_target = sfm(dist_target)
