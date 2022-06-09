@@ -156,8 +156,8 @@ print("CUDA_VISIBLE_DEVICES: ", CVD)
 gpus = CVD.split(',')
 
 # Use multiple GPUs if possible
-generator = nn.DataParallel(generator, output_device=int(gpus[1]))
-discriminator = nn.DataParallel(discriminator, output_device=int(gpus[1]))
+generator = nn.DataParallel(generator, output_device=int(gpus[-1]))
+discriminator = nn.DataParallel(discriminator, output_device=int(gpus[-1]))
 
 # Register modules to checkpoint
 checkpoint_io.register_modules(
