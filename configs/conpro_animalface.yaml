@@ -62,7 +62,7 @@ training:
   g_steps: 1
   equalize_lr: false
   model_file: model.pt
-  n_epoch: 1000
+  n_epoch: 4000
   n_epoch_factor: 1
   n_task: 7
   coef_distribution: dirichlet
