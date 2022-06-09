@@ -483,7 +483,7 @@ class Trainer(object):
 
         dist_source = dist_source.to(dist_target.device)
         print(dist_target)
-        print(dist_target.size())
+        # print(dist_target.size())
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
         print(mdl_loss)
 
