@@ -146,7 +146,7 @@ class Discriminator(nn.Module):
             feat = feats[2 + idx]  # 0<=idx<=3
             feat = feat[:batch_size // 2]  # only those for interpolated images
             pred = self.patch_conv[idx](feat)
-            return pred, feats
+            return pred, feats[2 + idx]
 
         out = F.avg_pool2d(out, 3, stride=2, padding=1)
         out = self.resnet_6_0(out)

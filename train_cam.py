@@ -122,7 +122,7 @@ checkpoint_io = CheckpointIO(
     checkpoint_dir=checkpoint_dir
 )
 
-device = torch.device("cuda:0" if is_cuda else "cpu")
+device = torch.device("cuda" if is_cuda else "cpu")
 
 # whether to start from a pretrained weights
 try:

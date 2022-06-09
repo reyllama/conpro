@@ -445,30 +445,37 @@ class Trainer(object):
         dist_source = sfm(alpha)
         input_image = torch.cat([interp_image, fake_image], dim=0)
 
-        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 3)
+        feat_ind = np.random.randint(0, self.discriminator.module.num_layers - 3) # [1,2,3] -> [0,1,2,3], for patch discrimination
 
-        interp_pred, feats = self.discriminator(input_image, y, mdl=True, idx=feat_ind)
+        interp_pred, feat = self.discriminator(input_image, y, mdl=True, idx=feat_ind) # alter this part so that discriminator returns indexed feature (feat_ind + 2)
         # interp_feat, fake_feat = feats[:batch_size], feats[batch_size:]
-        interp_feat, fake_feat = [feat[:batch_size] for feat in feats], [feat[batch_size:] for feat in feats]
+        # interp_feat, fake_feat = [feat[:batch_size] for feat in feats], [feat[batch_size:] for feat in feats]
+        interp_feat, fake_feat = feat[:batch_size], feat[batch_size:]
         # targets = torch.zeros_like(interp_pred, device=device)
         # adv_loss = F.binary_cross_entropy_with_logits(interp_pred, targets)
         # adv_loss = self.compute_loss(interp_pred, 0)
         adv_loss = d_logistic_loss(interp_pred) # TODO: Note I arbitrarily applied logistic loss (patch discrimination) here, might be a problem
 
-        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1, size=batch_size)
+        # feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1, size=batch_size) # [1,2,3,4,5], for MDL (pairwise feature similarity)
 
         # computing distances among target generations
-        dist_target = torch.zeros([batch_size, batch_size]).cuda()
+        # dist_target = torch.zeros([batch_size, batch_size]).cuda()
 
-        for pair1 in range(batch_size):
-            for pair2 in range(batch_size):
-                anchor_feat = torch.unsqueeze(
-                    interp_feat[feat_ind[pair1]][pair1].reshape(-1), 0)
-                compare_feat = torch.unsqueeze(
-                    fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
-                dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
+        interp_feat = interp_feat.view(batch_size, -1).unsqueeze(2)
+        fake_feat = fake_feat.view(batch_size, -1).unsqueeze(0)
 
+        dist_target = sim(interp_feat, fake_feat)
         dist_target = sfm(dist_target)
+
+        # for pair1 in range(batch_size):
+        #     for pair2 in range(batch_size):
+        #         anchor_feat = torch.unsqueeze(
+        #             interp_feat[feat_ind[pair1]][pair1].reshape(-1), 0)
+        #         compare_feat = torch.unsqueeze(
+        #             fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
+        #         dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
+        #
+        # dist_target = sfm(dist_target)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
 
         return adv_loss, mdl_loss
@@ -479,20 +486,26 @@ class Trainer(object):
         dist_source = sfm(alpha)  # (2, K)
 
         # (Select layer idx to extract activation from)
-        feat_ind = np.random.randint(1, self.generator.module.num_layers-1, size=batch_size)
+        feat_ind = np.random.randint(1, self.generator.module.num_layers-2)
+
+        interp_feat, fake_feat = interp_feat[feat_ind], fake_feat[feat_ind]
+        interp_feat = interp_feat.view(batch_size, -1).unsqueeze(2)
+        fake_feat = fake_feat.view(batch_size, -1).unsqueeze(0)
+        dist_target = sim(interp_feat, fake_feat)
+        dist_target = sfm(dist_target)
 
         # computing distances among target generations
-        dist_target = torch.zeros([batch_size, batch_size]).cuda()
+        # dist_target = torch.zeros([batch_size, batch_size]).cuda()
 
         # iterating over different elements in the batch
-        for pair1 in range(batch_size):
-            for pair2 in range(batch_size):
-                anchor_feat = torch.unsqueeze(
-                    interp_feat[feat_ind[pair1]][pair1].reshape(-1), 0)
-                compare_feat = torch.unsqueeze(
-                    fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
-                dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
-        dist_target = sfm(dist_target)
+        # for pair1 in range(batch_size):
+        #     for pair2 in range(batch_size):
+        #         anchor_feat = torch.unsqueeze(
+        #             interp_feat[feat_ind[pair1]][pair1].reshape(-1), 0)
+        #         compare_feat = torch.unsqueeze(
+        #             fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
+        #         dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
+        # dist_target = sfm(dist_target)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)  # distance consistency loss
 
         feat_ind = np.random.randint(0, self.discriminator.module.num_layers - 3)

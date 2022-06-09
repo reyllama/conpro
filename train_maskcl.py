@@ -118,7 +118,7 @@ checkpoint_io = CheckpointIO(
     checkpoint_dir=checkpoint_dir
 )
 
-device = torch.device("cuda:0" if is_cuda else "cpu")
+device = torch.device("cuda" if is_cuda else "cpu")
 
 # whether to start from a pretrained weights
 try:
@@ -151,9 +151,13 @@ g_optimizer, d_optimizer = build_optimizers(
     generator, discriminator, config
 )
 
+CVD = os.environ["CUDA_VISIBLE_DEVICES"]
+print("CUDA_VISIBLE_DEVICES: ", CVD)
+gpus = CVD.split(',')
+
 # Use multiple GPUs if possible
-generator = nn.DataParallel(generator)
-discriminator = nn.DataParallel(discriminator)
+generator = nn.DataParallel(generator, output_device=int(gpus[1]))
+discriminator = nn.DataParallel(discriminator, output_device=int(gpus[1]))
 
 # Register modules to checkpoint
 checkpoint_io.register_modules(
@@ -266,9 +270,6 @@ for task_id in task_range:
     nlabels = task_id + 1
     sample_nlabels = nlabels
 
-    # Distributions
-    # ydist = get_ydist(nlabels, device=device)                               # TODO: Implement so that sample from past tasks -> clear
-
     # Save for tests
     ntest = 16
     x_real, ytest = utils.get_nsamples(train_loader, ntest)
@@ -296,7 +297,7 @@ for task_id in task_range:
             y0 = torch.ones([batch_size], dtype=torch.long) * prev_task_id
             gen_replay, _ = generator(z, y0)
             real_cur = real_cur.to(device=gen_replay.device)
-            cross_dist = discriminator.module.evaluate_distance(gen_replay, real_cur) # TODO: implement evaluate_distance function in our discriminator
+            cross_dist = discriminator.module.evaluate_distance(gen_replay, real_cur)
             dists[prev_task_id-1] = cross_dist
         rel_task_id = np.argmin(dists) + 1
         ####
