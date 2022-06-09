@@ -554,7 +554,7 @@ class Trainer(object):
 
         adv_dloss, mdl_dloss = self.compute_discriminator_mdl(x_interp, x_fake, y, alpha)
 
-        self.mdl_d_wt = self.mdl_d_wt.to(mdl_dloss.device)
+        mdl_dloss = mdl_dloss.to(adv_dloss.device)
         dloss_fake = adv_dloss + self.mdl_d_wt * mdl_dloss
         dloss_fake.backward()
 
@@ -586,6 +586,7 @@ class Trainer(object):
 
         fake_image, interp_image, fake_feat, interp_feat, alpha = self.generate_interp(z, y, return_feats=True)
         adv_loss, mdl_gloss = self.compute_generator_mdl(interp_image, interp_feat, fake_feat, y, alpha)
+        mdl_gloss = mdl_gloss.to(adv_loss.device)
         gloss = adv_loss + self.mdl_g_wt * mdl_gloss
         gloss.backward()
 
