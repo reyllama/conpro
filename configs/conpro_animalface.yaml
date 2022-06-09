@@ -33,6 +33,7 @@ z_dist:
   dim: 256
 training:
   misc: DAI
+  temperature: 0.07
   d_reinit: false
   use_pretrain: false
   out_dir: ../conpro_experiments/experiments/conpro

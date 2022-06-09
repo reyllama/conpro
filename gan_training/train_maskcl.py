@@ -222,6 +222,7 @@ class Trainer(object):
         self.reg_type = config['training']['reg_type']
         self.reg_param = config['training']['reg_param']
         self.distribution_name = config['training']['coef_distribution']
+        self.temperature = config['training']['temperature']
         self.mdl_d_wt = config['training']['mdl_d_wt']
         self.mdl_g_wt = config['training']['mdl_g_wt']
         self.supcon_wt = config['training']['supcon_wt']
@@ -463,22 +464,22 @@ class Trainer(object):
 
         # computing distances among target generation
 
-        # interp_feat = interp_feat.view(batch_size, -1).unsqueeze(2)
-        # fake_feat = fake_feat.view(-1, batch_size).unsqueeze(0)
-        # dist_target = sim(interp_feat, fake_feat)
+        interp_feat = interp_feat.view(batch_size, -1).unsqueeze(2)
+        fake_feat = fake_feat.view(-1, batch_size).unsqueeze(0)
+        dist_target = sim(interp_feat, fake_feat)
+        dist_target = sfm(dist_target / self.temperature)
+
+        # feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1, size=batch_size) # [1,2,3,4,5], for MDL (pairwise feature similarity)
+        # dist_target = torch.zeros([batch_size, batch_size]).cuda()
+        # for pair1 in range(batch_size):
+        #     for pair2 in range(batch_size):
+        #         anchor_feat = torch.unsqueeze(
+        #             interp_feat[feat_ind[pair1]][pair1].reshape(-1), 0)
+        #         compare_feat = torch.unsqueeze(
+        #             fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
+        #         dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
+        #
         # dist_target = sfm(dist_target)
-
-        feat_ind = np.random.randint(1, self.discriminator.module.num_layers - 1, size=batch_size) # [1,2,3,4,5], for MDL (pairwise feature similarity)
-        dist_target = torch.zeros([batch_size, batch_size]).cuda()
-        for pair1 in range(batch_size):
-            for pair2 in range(batch_size):
-                anchor_feat = torch.unsqueeze(
-                    interp_feat[feat_ind[pair1]][pair1].reshape(-1), 0)
-                compare_feat = torch.unsqueeze(
-                    fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
-                dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
-
-        dist_target = sfm(dist_target)
 
         dist_source = dist_source.to(dist_target.device)
         print(dist_target)

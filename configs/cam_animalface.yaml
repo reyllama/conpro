@@ -33,6 +33,7 @@ z_dist:
   dim: 256
 training:
   misc: mainAF_noreinit
+  temperature: 0.07
   d_reinit: false
   use_pretrain: true
   out_dir: ../conpro_experiments/experiments/cl/100/cam
