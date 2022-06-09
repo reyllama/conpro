@@ -481,7 +481,7 @@ class Trainer(object):
         #         dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
         #
         # dist_target = sfm(dist_target)
-        dist_source.to(dist_target.device)
+        dist_source = dist_source.to(dist_target.device)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
 
         return adv_loss, mdl_loss
@@ -512,6 +512,7 @@ class Trainer(object):
         #             fake_feat[feat_ind[pair1]][pair2].reshape(-1), 0)
         #         dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
         # dist_target = sfm(dist_target)
+        dist_source = dist_source.to(dist_target.device)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)  # distance consistency loss
 
         feat_ind = np.random.randint(0, self.discriminator.module.num_layers - 3)
