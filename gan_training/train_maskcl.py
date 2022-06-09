@@ -446,7 +446,6 @@ class Trainer(object):
 
     def compute_discriminator_mdl(self, interp_image, fake_image, y, alpha):
         batch_size = interp_image.size(0)
-        print(batch_size)
         device = interp_image.device
         dist_source = sfm(alpha)
         input_image = torch.cat([interp_image, fake_image], dim=0)
@@ -483,6 +482,7 @@ class Trainer(object):
 
         dist_source = dist_source.to(dist_target.device)
         print(dist_target)
+        print(dist_target.size())
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
         print(mdl_loss)
 
