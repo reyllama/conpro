@@ -10,7 +10,7 @@ from torch import nn
 # Define auxiliary functions for MDL computation
 sfm = nn.Softmax(dim=1)
 kl_loss = nn.KLDivLoss()
-sim = nn.CosineSimilarity()
+sim = nn.CosineSimilarity(dim=1)
 
 def generate_interp(generator, z, distribution):
     batch_size = z.size(0)
@@ -482,6 +482,7 @@ class Trainer(object):
         #
         # dist_target = sfm(dist_target)
         dist_source = dist_source.to(dist_target.device)
+        print(dist_target)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
         print(mdl_loss)
 
