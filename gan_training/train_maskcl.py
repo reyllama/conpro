@@ -495,9 +495,10 @@ class Trainer(object):
         dist_source = sfm(alpha)  # (2, K)
 
         # (Select layer idx to extract activation from)
-        feat_ind = np.random.randint(1, self.generator.module.num_layers-2)
+
 
         # Modified MDL
+        # feat_ind = np.random.randint(1, self.generator.module.num_layers-2)
         # interp_feat, fake_feat = interp_feat[feat_ind], fake_feat[feat_ind]
         # interp_feat = interp_feat.view(batch_size, -1).unsqueeze(2)
         # fake_feat = fake_feat.view(-1, batch_size).unsqueeze(0)
@@ -506,6 +507,7 @@ class Trainer(object):
 
         # computing distances among target generations
         dist_target = torch.zeros([batch_size, batch_size]).cuda()
+        feat_ind = np.random.randint(1, self.generator.module.num_layers-2, size=batch_size)
 
         # iterating over different elements in the batch
         for pair1 in range(batch_size):
