@@ -483,6 +483,7 @@ class Trainer(object):
         # dist_target = sfm(dist_target)
         dist_source = dist_source.to(dist_target.device)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
+        print(mdl_loss)
 
         return adv_loss, mdl_loss
 
