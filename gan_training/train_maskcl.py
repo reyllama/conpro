@@ -323,6 +323,8 @@ class Trainer(object):
 
         x_fake.requires_grad_()
 
+        x_real = x_real.to(self.generator.module.device)
+        x_fake = x_fake.to(self.generator.module.device)
         images = torch.cat([x_real, x_fake], dim=0)
         labels = torch.cat([y, past_y], dim=0)
 
