@@ -161,6 +161,7 @@ class SupConLoss(nn.Module):
             torch.arange(batch_size * anchor_count).view(-1, 1).to(device),
             0
         )
+        logits_mask = logits_mask.to(logits.device)
         mask = mask * logits_mask
 
         # compute log_prob
