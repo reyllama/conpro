@@ -407,7 +407,7 @@ for task_id in task_range:
 
             # (i) Sample if necessary
             if (it % config['training']['sample_every']) == 0:
-                print('Creating samples...')
+                # print('Creating samples...')
                 # x = evaluator.create_samples(ztest, ytest)
                 # logger.add_imgs(x, 'all', it)
                 for y_inst in range(sample_nlabels):
