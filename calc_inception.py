@@ -365,7 +365,7 @@ if __name__ == "__main__":
         "--flip", action="store_true", help="apply random flipping to real images"
     )
     parser.add_argument(
-        "--save_path", type=str, default="../conpro_experiments/data/AnimalFace/cl/inception_rec"
+        "--save_path", type=str, default="../conpro_experiments/data/AnimalFace/cl/inception"
     )
     parser.add_argument("path", metavar="PATH", help="path to dataset image folder") # ex: ../conpro_experiments/data/AnimalFace/cl
 
