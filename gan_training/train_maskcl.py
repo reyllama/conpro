@@ -481,6 +481,7 @@ class Trainer(object):
         #         dist_target[pair1, pair2] = sim(anchor_feat, compare_feat)
         #
         # dist_target = sfm(dist_target)
+        dist_source.to(dist_target.device)
         mdl_loss = kl_loss(torch.log(dist_target), dist_source)
 
         return adv_loss, mdl_loss
