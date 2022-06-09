@@ -32,14 +32,14 @@ z_dist:
   type: gauss
   dim: 256
 training:
-  misc: mainAF_reinit
-  d_reinit: true
-  use_pretrain: true
-  out_dir: ../conpro_experiments/experiments/cl/100/mask
+  misc: DAI
+  d_reinit: false
+  use_pretrain: false
+  out_dir: ../conpro_experiments/experiments/conpro
   gan_type: standard
   reg_type: real
   reg_param: 10.
-  batch_size: 8
+  batch_size: 96
   nworkers: 3
   take_model_average: true
   model_average_beta: 0.999
