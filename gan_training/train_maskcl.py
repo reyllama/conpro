@@ -178,7 +178,7 @@ class SupConLoss(nn.Module):
         curr_class_mask = torch.zeros_like(labels)
         for tc in target_labels:
             curr_class_mask += (labels == tc)
-        curr_class_mask = curr_class_mask.view(-1).to(device)
+        curr_class_mask = curr_class_mask.view(-1).to(logits.device)
         loss = curr_class_mask * loss.view(anchor_count, batch_size)
 
         if reduction == 'mean':
