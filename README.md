@@ -34,9 +34,5 @@ Finally, you can create nice latent space interpolations using
 ```
 python interpolate.py PATH_TO_CONFIG
 ```
-or
-```
-python interpolate_class.py PATH_TO_CONFIG
-```
 
 Our main configuration is provided in `configs/conpro_animalface.yaml`, where important hyperparameters such as AFM factorization rank, mdl and supcon frequency, relative loss weights can be controlled.
