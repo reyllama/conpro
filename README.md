@@ -18,7 +18,9 @@ You can find further details on [our project page](https://avg.is.tuebingen.mpg.
 # Usage
 First download your data and put it into the `./data` folder. We mainly use [Animal-Face Dataset](https://data.mendeley.com/datasets/z3x59pv4bz/3).
 
-Note that we simulate incremental few-shot setting by sampling 7 random classes (Bear, Cat, Cow, Deer, Elephant, Lion, Wolf). Arrange your dataset sub-directories and pass the structure in to the `configs/config.yaml` under `data/train_dir`.
+Note that we simulate incremental few-shot setting by sampling 7 random classes (Bear, Cat, Cow, Deer, Elephant, Lion, Wolf).
+
+Arrange your dataset sub-directories and pass the structure in to the `configs/config.yaml` under `data/train_dir`.
 
 To train a new model, first create a config script similar to the ones provided in the `./configs` folder.  You can then train you model using
 ```
