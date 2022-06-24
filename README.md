@@ -1,4 +1,5 @@
-# GAN stability
+# Conservative Generator, Progressive Discriminator
+
 This repository contains the experiments in the supplementary material for the paper [Which Training Methods for GANs do actually Converge?](https://avg.is.tuebingen.mpg.de/publications/meschedericml2018).
 
 To cite this work, please use
