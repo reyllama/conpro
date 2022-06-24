@@ -22,9 +22,9 @@ Note that we simulate incremental few-shot setting by sampling 7 random classes 
 
 Arrange your dataset sub-directories and pass the structure in to the `configs/config.yaml` under `data/train_dir`.
 
-To train a new model, first create a config script similar to the ones provided in the `./configs` folder.  You can then train you model using
+To train a new model, first create a config script similar to the ones provided in the `./configs` folder.  You can then train ConPro model using
 ```
-python train.py PATH_TO_CONFIG
+python train_masckcl.py PATH_TO_CONFIG
 ```
 During the training process, FID is computed against the real images, in which case you are recommended to precompute the inception features using `calc_inception.py`.
 
