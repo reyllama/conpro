@@ -26,11 +26,12 @@ is_cuda = (torch.cuda.is_available() and not args.no_cuda)
 
 # Shorthands
 nlabels = config['data']['nlabels']
-out_dir = config['training']['out_dir']
+# out_dir = config['training']['out_dir']
+out_dir = "/workspace/conpro_experiments/experiments/conpro/mdl_2_10.0_100.0_supcon_2_0.1_DAI-prt"
 batch_size = config['test']['batch_size']
 sample_size = config['test']['sample_size']
 sample_nrow = config['test']['sample_nrow']
-checkpoint_dir = path.join(out_dir, 'chkpts')
+checkpoint_dir = path.join(out_dir, 'ckpts')
 interp_dir = path.join(out_dir, 'test', 'interp_class')
 
 # Creat missing directories
@@ -86,8 +87,10 @@ epoch_idx = load_dict.get('epoch_idx', -1)
 
 # Interpolations
 print('Creating interplations...')
-nsubsteps = config['interpolations']['nsubsteps']
-ys = config['interpolations']['ys']
+# nsubsteps = config['interpolations']['nsubsteps']
+# ys = config['interpolations']['ys']
+nsubsteps = 8
+ys = list(range(8))
 
 nsteps = len(ys)
 z = zdist.sample((sample_size,))
@@ -103,7 +106,7 @@ for y1, y2 in zip(ys, ys[1:] + [ys[0]]):
         t = float(t)
         y_embed = (1 - t) * y1_embed + t * y2_embed
         with torch.no_grad():
-            x = generator_test(z, y_embed)
+            x = generator_test.module.interpolate(z, y_embed)
             utils.save_images(x, path.join(interp_dir, '%04d.png' % it),
                               nrow=sample_nrow)
             it += 1

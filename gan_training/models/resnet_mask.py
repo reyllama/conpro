@@ -179,6 +179,36 @@ class Generator(nn.Module):
         self.resnet_6_0 = Gen_ResnetBlock(1*nf, 1*nf, rank=rank, n_task=n_task)
         self.conv_img = nn.Conv2d(nf, 3, 7, padding=3)
 
+    def interpolate(self, z, yembed):
+        batch_size = z.size(0)
+        yz = torch.cat([z, yembed], dim=1)
+        out = self.fc(yz)
+        out = out.view(batch_size, 16 * self.nf, self.s0, self.s0)
+
+        out = self.resnet_0_0(out, y)
+        out = F.interpolate(out, scale_factor=2)
+        out = self.resnet_1_0(out, y)
+
+        out = F.interpolate(out, scale_factor=2)
+        out = self.resnet_2_0(out, y)
+
+        out = F.interpolate(out, scale_factor=2)
+        out = self.resnet_3_0(out, y)
+
+        out = F.interpolate(out, scale_factor=2)
+        out = self.resnet_4_0(out, y)
+
+        out = F.interpolate(out, scale_factor=2)
+        out = self.resnet_5_0(out, y)
+
+        out = F.interpolate(out, scale_factor=2)
+        out = self.resnet_6_0(out, y)
+
+        out = self.conv_img(actvn(out))
+        out = torch.tanh(out)
+
+        return out
+
 
     def forward(self, z, y, return_feats=False):
         assert(z.size(0) == y.size(0))

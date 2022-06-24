@@ -78,7 +78,7 @@ test:
   use_model_average: true
   compute_inception: false
   conditional_samples: false
-  model_file: model.pt
+  model_file: model_00299999.pt
 interpolations:
   nzs: 10
-  nsubsteps: 75
+  nsubsteps: 8

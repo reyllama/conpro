@@ -26,12 +26,12 @@ is_cuda = (torch.cuda.is_available() and not args.no_cuda)
 
 # Shorthands
 nlabels = config['data']['nlabels']
-out_dir = config['training']['out_dir']
+out_dir = "/workspace/conpro_experiments/experiments/conpro/mdl_2_10.0_100.0_supcon_2_0.1_DAI"
 batch_size = config['test']['batch_size']
 sample_size = config['test']['sample_size']
 sample_nrow = config['test']['sample_nrow']
-checkpoint_dir = path.join(out_dir, 'chkpts')
-interp_dir = path.join(out_dir, 'test', 'interp')
+checkpoint_dir = path.join(out_dir, 'ckpts')
+interp_dir = path.join(out_dir, 'test', 'individual')
 
 # Creat missing directories
 if not path.exists(interp_dir):
@@ -89,17 +89,22 @@ print('Creating interplations...')
 nsteps = config['interpolations']['nzs']
 nsubsteps = config['interpolations']['nsubsteps']
 
-y = ydist.sample((sample_size,))
-zs = [zdist.sample((sample_size,)) for i in range(nsteps)]
-ts = np.linspace(0, 1, nsubsteps)
+for task_id in range(1, 8):
+    y = torch.ones([batch_size], dtype=torch.long) * task_id
 
-it = 0
-for z1, z2 in zip(zs, zs[1:] + [zs[0]]):
-    for t in ts:
-        z = interpolate_sphere(z1, z2, float(t))
-        with torch.no_grad():
-            x = generator_test(z, y)
-            utils.save_images(x, path.join(interp_dir, '%04d.png' % it),
-                              nrow=sample_nrow)
-            it += 1
-            print('%d/%d done!' % (it, nsteps * nsubsteps))
+# y = ydist.sample((sample_size,))
+    zs = [zdist.sample((sample_size,)) for i in range(nsteps)]
+    ts = np.linspace(0, 1, nsubsteps)
+
+    os.makedirs(path.join(interp_dir, f"{task_id}"))
+
+    it = 0
+    for z1, z2 in zip(zs, zs[1:] + [zs[0]]):
+        for t in ts:
+            z = interpolate_sphere(z1, z2, float(t))
+            with torch.no_grad():
+                x, _ = generator_test(z, y)
+                utils.save_images(x, path.join(interp_dir, str(task_id), '%04d.png' % it),
+                                  nrow=sample_nrow)
+                it += 1
+                print('%d/%d done!' % (it, nsteps * nsubsteps))
