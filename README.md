@@ -1,6 +1,8 @@
 # Conservative Generator, Progressive Discriminator
 
-This repository contains the experiments in the supplementary material for the paper [Which Training Methods for GANs do actually Converge?](https://avg.is.tuebingen.mpg.de/publications/meschedericml2018).
+This repository provides the code base for ConPro, a framework for incremental few-shot learning of GANs.
+
+<!-- This repository contains the experiments in the supplementary material for the paper [Which Training Methods for GANs do actually Converge?](https://avg.is.tuebingen.mpg.de/publications/meschedericml2018).
 
 To cite this work, please use
 ```
@@ -11,10 +13,12 @@ To cite this work, please use
   year = {2018}
 }
 ```
-You can find further details on [our project page](https://avg.is.tuebingen.mpg.de/research_projects/convergence-and-stability-of-gan-training).
+You can find further details on [our project page](https://avg.is.tuebingen.mpg.de/research_projects/convergence-and-stability-of-gan-training). -->
 
 # Usage
-First download your data and put it into the `./data` folder.
+First download your data and put it into the `./data` folder. We mainly use [Animal-Face Dataset](https://data.mendeley.com/datasets/z3x59pv4bz/3).
+
+Note that we simulate incremental few-shot setting by sampling 7 random classes (Bear, Cat, Cow, Deer, Elephant, Lion, Wolf). Arrange your dataset sub-directories and pass the structure in to the `configs/config.yaml` under `data/train_dir`.
 
 To train a new model, first create a config script similar to the ones provided in the `./configs` folder.  You can then train you model using
 ```
